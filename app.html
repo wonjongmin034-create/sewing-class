@@ -56,10 +56,11 @@ h2{font-size:30px;color:var(--teal-d);margin-bottom:4px}
 /* stitch / button svg */
 .board{background:#fff;border:3px solid var(--teal-l);border-radius:26px;padding:10px;touch-action:none}
 .board svg{width:100%;height:auto;display:block}
-.say{background:#fff4cf;border:3px dashed #e7b92f;border-radius:20px;padding:12px 18px;font-size:23px;margin-bottom:12px;min-height:60px;display:flex;align-items:center;gap:10px}
+.say{background:#fff4cf;border:3px dashed #e7b92f;border-radius:20px;padding:12px 18px;font-size:23px;margin-bottom:12px;min-height:104px;display:flex;align-items:center;gap:10px}
 .pulse{animation:pulse 1s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes flashk{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}.flash{animation:flashk .5s both;transform-box:fill-box;transform-origin:center}
 @keyframes pulse{50%{transform:scale(1.35);opacity:.55}}
-.msg{font-family:Jua;font-size:26px;color:var(--ok);text-align:center;margin:10px 0;min-height:34px}
+.msg{font-family:Jua;font-size:26px;color:var(--ok);text-align:center;margin:10px 0;height:40px;overflow:hidden}
 .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px}
 /* eval */
 .ev{display:grid;gap:12px}
@@ -190,46 +191,111 @@ function renderOrder() {
   };
 }
 
-/* ---------- 3. 바늘땀 ---------- */
-let stType = 'running', stIdx = 0;
-const SW = 900, SH = 330;
+/* ---------- 3. 바늘땀 (펜으로 바늘을 직접 끌어 바느질) ---------- */
+let stType = 'running', ph = 0, drag = null, penSeen = false, stDev = [], flash = null;
+const SW = 900, SH = 330, SY = 150, SYB = 205, SYU = 282;
+function stGeom() { const st = STITCH[stType], p = st.pos, max = Math.max(...p), u = (SW - 140) / max; return { st, p, X: v => 70 + v * u }; }
+function stPlan() { // 지금 해야 할 동작: 시작점 S, 목표점 T, 겉/안 여부
+  const { p, X } = stGeom(), n = p.length;
+  if (ph >= n) return { done: true };
+  const front = ph === 0 || (ph - 1) % 2 === 0;
+  const S = ph === 0 ? { x: X(p[0]), y: SYU } : { x: X(p[ph - 1]), y: front ? SY : SYB };
+  const T = { x: X(p[ph]), y: front ? SY : SYB };
+  return { done: false, front, S, T, n };
+}
 function renderStitchShell() {
-  $('#p-stitch').innerHTML = `<h2>바늘땀 연습</h2><p class="lead">반짝이는 구멍을 순서대로 눌러서 바느질해 봐요. 실선은 겉, 점선은 안(뒷면)이에요.</p>
+  $('#p-stitch').innerHTML = `<h2>바늘땀 연습</h2><p class="lead">펜(손가락도 돼요)으로 <b>바늘을 잡고</b> 반짝이는 구멍까지 끌어서 바느질해요. 실선은 겉, 점선은 안(뒷면)이에요.</p>
    <div class="pills">${Object.keys(STITCH).map(k => `<button class="pill ${k === stType ? 'on' : ''}" data-k="${k}">${STITCH[k].name}</button>`).join('')}</div>
-   <div class="say" id="say"></div><div class="board"><svg id="stsvg" viewBox="0 0 ${SW} ${SH}"></svg></div><div class="msg" id="stmsg"></div>
+   <div class="say" id="say"></div><div class="board"><svg id="stsvg" viewBox="0 0 ${SW} ${SH}" style="touch-action:none"></svg></div><div class="msg" id="stmsg"></div>
    <div class="actions"><button class="btn ghost" id="streset">처음부터</button></div>`;
-  $('#p-stitch .pills').onclick = e => { const b = e.target.closest('.pill'); if (b) { stType = b.dataset.k; stIdx = 0; renderStitch(); document.querySelectorAll('#p-stitch .pill').forEach(x => x.classList.toggle('on', x === b)); } };
-  $('#streset').onclick = () => { stIdx = 0; renderStitch(); };
+  $('#p-stitch .pills').onclick = e => { const b = e.target.closest('.pill'); if (b) { stType = b.dataset.k; ph = 0; drag = null; flash = null; stDev = []; renderStitch(); document.querySelectorAll('#p-stitch .pill').forEach(x => x.classList.toggle('on', x === b)); } };
+  $('#streset').onclick = () => { ph = 0; drag = null; flash = null; stDev = []; renderStitch(); };
+  const svg = $('#stsvg');
+  const pt = e => { const m = svg.getScreenCTM().inverse(), q = svg.createSVGPoint(); q.x = e.clientX; q.y = e.clientY; const r = q.matrixTransform(m); return { x: r.x, y: r.y }; };
+  svg.onpointerdown = e => {
+    if (e.pointerType === 'pen') penSeen = true;
+    if (penSeen && e.pointerType === 'touch') return; // 손바닥 무시
+    const pl = stPlan(); if (pl.done) return;
+    const q = pt(e);
+    if (Math.hypot(q.x - pl.S.x, q.y - pl.S.y) > 85) { $('#stmsg').style.color = ''; $('#stmsg').textContent = '바늘을 꾹 잡고 끌어 보세요!'; return; }
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    flash = null;
+    drag = { id: e.pointerId, pts: [{ x: pl.S.x, y: pl.S.y }], x: q.x, y: q.y, ang: pl.front && ph > 0 ? (pl.T.x >= pl.S.x ? 0 : 180) : -90, dev: [], pressure: e.pressure || .5 };
+    $('#stmsg').textContent = ''; renderStitch(); moveDrag(q, e);
+  };
+  svg.onpointermove = e => { if (drag && e.pointerId === drag.id) moveDrag(pt(e), e); };
+  const end = e => { if (drag && e.pointerId === drag.id) finishDrag(pt(e)); };
+  svg.onpointerup = end; svg.onpointercancel = () => { drag = null; renderStitch(); };
   renderStitch();
 }
+let raf = 0;
+function moveDrag(q, e) {
+  const pl = stPlan(); if (!drag || pl.done) return;
+  const dx = q.x - drag.x, dy = q.y - drag.y;
+  if (Math.hypot(dx, dy) > 3) {
+    let a = Math.atan2(dy, dx) * 180 / Math.PI;
+    if (ph > 0) { const b = a > 90 ? a - 180 : a < -90 ? a + 180 : a, c = Math.max(-40, Math.min(40, b)); a = (Math.abs(a) > 90 ? 180 : 0) + c; }
+    const same = Math.abs(a - drag.ang) < 100; drag.ang = same ? drag.ang + (a - drag.ang) * .35 : a;
+  }
+  drag.x = q.x; drag.y = q.y; drag.pressure = e.pressure || drag.pressure;
+  const last = drag.pts[drag.pts.length - 1];
+  if (Math.hypot(q.x - last.x, q.y - last.y) > 4) { drag.pts.push({ x: q.x, y: q.y }); drag.dev.push(ph === 0 ? Math.abs(q.x - pl.T.x) : Math.abs(q.y - pl.T.y)); }
+  if (Math.hypot(q.x - pl.T.x, q.y - pl.T.y) < 24) { finishDrag(q); return; }
+  cancelAnimationFrame(raf); raf = requestAnimationFrame(renderStitch);
+}
+function finishDrag(q) {
+  const pl = stPlan(); if (!drag || pl.done) { drag = null; return; }
+  const ok = Math.hypot(q.x - pl.T.x, q.y - pl.T.y) < 42;
+  if (ok) {
+    if (drag.dev.length) stDev.push(drag.dev.reduce((a, b) => a + b, 0) / drag.dev.length);
+    flash = { x: pl.T.x, y: pl.T.y }; ph++; drag = null;
+    try { navigator.vibrate && navigator.vibrate(18); } catch (e) {}
+    $('#stmsg').style.color = ''; $('#stmsg').textContent = '';
+  } else {
+    drag = null; $('#stmsg').style.color = '#c24a3a'; $('#stmsg').textContent = '구멍까지 바늘을 끌어 주세요. 다시 해 봐요!';
+  }
+  renderStitch();
+}
+function needleG(x, y, ang, faded) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang})" opacity="${faded ? .6 : 1}" style="filter:drop-shadow(0 4px 3px #0003)">
+    <path d="M0 0 L-70 -4.5 L-98 -4.5 L-98 4.5 L-70 4.5Z" fill="#d5dde4" stroke="#7d8996" stroke-width="2" stroke-linejoin="round"/>
+    <ellipse cx="-88" cy="0" rx="6" ry="2" fill="#5f6b77"/><line x1="-66" y1="-2" x2="-6" y2="-0.6" stroke="#fff" stroke-width="1.5" stroke-opacity=".8"/></g>`;
+}
 function renderStitch() {
-  const st = STITCH[stType], p = st.pos, max = Math.max(...p), u = (SW - 140) / max, X = v => 70 + v * u, Y = 150, YB = 205;
+  const { st, p, X } = stGeom(), pl = stPlan(), done = pl.done;
   let g = `<rect x="14" y="60" width="${SW - 28}" height="190" rx="22" fill="#fbe9bd" stroke="#e0c47a" stroke-width="4"/>
     <text x="34" y="92" font-size="20" fill="#8a7338" font-family="Gowun Dodum">겉(앞면)</text><text x="34" y="236" font-size="20" fill="#8a7338" font-family="Gowun Dodum">안(뒷면)</text>
-    <line x1="40" y1="${Y}" x2="${SW - 40}" y2="${Y}" stroke="#d9b66b" stroke-width="2" stroke-dasharray="3 9"/>`;
-  for (let i = 0; i < stIdx - 1; i++) {
-    if (i % 2 === 0) g += `<line x1="${X(p[i])}" y1="${Y}" x2="${X(p[i + 1])}" y2="${Y}" stroke="#1fae6b" stroke-width="9" stroke-linecap="round"/>`;
-    else g += `<line x1="${X(p[i])}" y1="${YB}" x2="${X(p[i + 1])}" y2="${YB}" stroke="#8fd3b0" stroke-width="5" stroke-dasharray="10 8" stroke-linecap="round"/>`;
+    <line x1="40" y1="${SY}" x2="${SW - 40}" y2="${SY}" stroke="#d9b66b" stroke-width="2" stroke-dasharray="3 9"/>
+    <line x1="40" y1="${SYB}" x2="${SW - 40}" y2="${SYB}" stroke="#d9b66b" stroke-width="2" stroke-dasharray="3 9" opacity=".7"/>`;
+  if (!done && !pl.front) g += `<rect x="14" y="60" width="${SW - 28}" height="190" rx="22" fill="#6b5420" opacity=".22"/><text x="${SW / 2}" y="118" font-size="24" text-anchor="middle" fill="#fff" font-family="Jua">🔄 바늘이 천 속(뒷면)으로 들어갔어요</text>`;
+  for (let i = 0; i < ph - 1; i++) {
+    if (i % 2 === 0) g += `<line x1="${X(p[i])}" y1="${SY}" x2="${X(p[i + 1])}" y2="${SY}" stroke="#1fae6b" stroke-width="9" stroke-linecap="round"/>`;
+    else g += `<line x1="${X(p[i])}" y1="${SYB}" x2="${X(p[i + 1])}" y2="${SYB}" stroke="#8fd3b0" stroke-width="5" stroke-dasharray="10 8" stroke-linecap="round"/>`;
   }
-  const done = stIdx >= p.length;
-  new Set(p).forEach(v => {
-    const next = !done && p[stIdx] === v;
-    g += `<g data-v="${v}" style="cursor:pointer"><circle cx="${X(v)}" cy="${Y}" r="34" fill="transparent"/>
-      ${next ? `<circle class="pulse" cx="${X(v)}" cy="${Y}" r="16" fill="#ffd34d" stroke="#e0a800" stroke-width="3"/>` : ''}
-      <circle cx="${X(v)}" cy="${Y}" r="6.5" fill="#6b4a0f"/></g>`;
-  });
-  if (!done) { const v = p[stIdx], x = X(v), up = stIdx % 2 === 0;
-    g += `<g transform="translate(${x} ${up ? Y + 62 : Y - 118})"><g transform="translate(-30 0) scale(.6)">${ART.needle.replace('<svg ', '<svg width="100" height="100" ')}</g></g>`; }
+  new Set(p).forEach(v => { g += `<circle cx="${X(v)}" cy="${SY}" r="6.5" fill="#6b4a0f"/>`; });
+  if (!done) g += `<circle class="pulse" cx="${pl.T.x}" cy="${pl.T.y}" r="17" fill="#ffd34d" stroke="#e0a800" stroke-width="3"/><circle cx="${pl.T.x}" cy="${pl.T.y}" r="6" fill="#6b4a0f"/>`;
+  if (flash) g += `<circle class="flash" cx="${flash.x}" cy="${flash.y}" r="30" fill="none" stroke="#ffd34d" stroke-width="6"/>`;
+  if (drag && !done) { /* 바늘이 끌고 오는 실 */
+    const d = drag.pts.map((q, i) => (i ? 'L' : 'M') + q.x.toFixed(1) + ' ' + q.y.toFixed(1)).join(' ') + ` L${drag.x.toFixed(1)} ${drag.y.toFixed(1)}`;
+    const w = 5 + (drag.pressure || .5) * 5;
+    g += pl.front ? `<path d="${d}" fill="none" stroke="#1fae6b" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`
+      : `<path d="${d}" fill="none" stroke="#8fd3b0" stroke-width="5" stroke-dasharray="10 8" stroke-linecap="round"/>`;
+  }
+  if (!done) {
+    const rest = ph === 0 ? -90 : (pl.T.x >= pl.S.x ? 12 : 168);
+    g += drag ? needleG(drag.x, drag.y, drag.ang, !pl.front || ph === 0 && drag.y > SY + 40) : needleG(pl.S.x, pl.S.y, rest, !pl.front || ph === 0);
+    if (!drag && ph === 0) g += `<text x="${pl.S.x + 24}" y="${pl.S.y + 6}" font-size="20" fill="#7a6a4a" font-family="Gowun Dodum">바늘을 잡아 올려요 ↑</text>`;
+  }
   $('#stsvg').innerHTML = g;
-  $('#say').innerHTML = done ? `<div>🎉 <b>${st.name}</b> 완성! ${st.use}</div>` :
-    `<div><b>${stIdx + 1}</b> ${stIdx % 2 === 0 ? '⬆ 안쪽에서 바늘을 <b>올려요</b>' : '⬇ 겉에서 바늘을 <b>넣어요</b>'}</div><span style="color:#7a8a92;font-size:19px;margin-left:auto">${st.name} · ${st.size}</span>`;
-  $('#stmsg').textContent = done ? '' : '';
-  if (done) { $('#stmsg').textContent = `${st.name}을(를) 끝까지 해냈어요!`; stamp(stType); }
-  $('#stsvg').onpointerdown = e => {
-    const gEl = e.target.closest('[data-v]'); if (!gEl || stIdx >= p.length) return;
-    if (+gEl.dataset.v === p[stIdx]) { stIdx++; renderStitch(); }
-    else { gEl.classList.remove('shake'); void gEl.getBoundingClientRect(); gEl.classList.add('shake'); $('#stmsg').style.color = '#c24a3a'; $('#stmsg').textContent = '반짝이는 구멍을 눌러 보세요!'; setTimeout(() => { $('#stmsg').style.color = ''; if (stIdx < p.length) $('#stmsg').textContent = ''; }, 1200); }
-  };
+  const total = p.length;
+  $('#say').innerHTML = done ? `<div>🎉 <b>${st.name}</b> 완성! ${st.use}</div>`
+    : `<div><b>${ph}/${total}</b> ${ph === 0 ? '🪡 아래에 있는 바늘을 잡고 <b>반짝이는 구멍</b>까지 끌어 올려요' : pl.front ? '✍ 바늘을 잡고 겉에서 <b>다음 구멍</b>까지 실을 끌며 이동해요' : '🔄 이제 뒷면! 바늘을 잡고 <b>점선</b>을 따라 다음 구멍까지 끌어요'}</div><span style="color:#7a8a92;font-size:19px;margin-left:auto">${st.name} · ${st.size}</span>`;
+  if (done && !$('#stmsg').dataset.done) {
+    const avg = stDev.length ? stDev.reduce((a, b) => a + b, 0) / stDev.length : 0, stars = avg < 9 ? 3 : avg < 20 ? 2 : 1;
+    $('#stmsg').style.color = ''; $('#stmsg').textContent = `${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)} 바늘땀이 ${stars === 3 ? '아주 곧고 고르게' : stars === 2 ? '꽤 곧게' : '조금 구불구불하게'} 나왔어요!`;
+    stamp(stType);
+  }
+  $('#stmsg').dataset.done = done ? '1' : '';
 }
 
 /* ---------- 4. 단추 달기 ---------- */
