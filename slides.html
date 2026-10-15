@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>옷의 간단한 수선 – 수업 슬라이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1aa0a6;--teal-d:#0f7a80;--teal-l:#d9f3f4;--coral:#ef6f5e;--sun:#ffd34d;--ink:#26323a;--paper:#fffdf6}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#12383b;overflow:hidden;font-family:'Gowun Dodum','Malgun Gothic',sans-serif;color:var(--ink);touch-action:pan-y}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center;background:var(--paper);overflow:hidden;border-radius:18px;box-shadow:0 10px 40px #0006}
+.slide{position:absolute;inset:0;padding:48px 70px;opacity:0;pointer-events:none;transition:opacity .35s}
+.slide.on{opacity:1;pointer-events:auto}
+.slide.on .pop{animation:pop .5s both cubic-bezier(.2,1.4,.4,1);animation-delay:calc(var(--d,0)*.12s + .1s)}
+@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}
+h1,h2,h3,.jua{font-family:'Jua','Gowun Dodum',sans-serif;font-weight:400}
+h2{font-size:50px;color:var(--teal-d);display:flex;align-items:center;gap:16px;margin-bottom:6px}
+h2::before{content:'';width:12px;height:46px;border-radius:6px;background:var(--teal)}
+.sub{font-size:25px;color:#5b6b73;margin:0 0 20px 28px}
+.teal{color:var(--teal)}
+.pg{position:absolute;right:26px;bottom:16px;font-family:Jua;color:#fff;background:var(--teal);padding:2px 16px;border-radius:20px;font-size:20px}
+svg{display:block}
+/* cover */
+.cover{background:linear-gradient(135deg,#a3e4e6 0%,#d9f3f4 55%,#fffdf6 55%);}
+.cover .num{font-family:Jua;font-size:260px;color:var(--teal);position:absolute;left:80px;top:60px;line-height:1}
+.cover h1{position:absolute;left:300px;top:130px;font-size:100px;line-height:1.1;color:var(--ink)}
+.cover .tag{position:absolute;left:300px;top:380px;font-size:32px;background:#fff;padding:8px 26px;border-radius:30px;border:3px dashed var(--teal)}
+.cover .k{position:absolute;right:80px;bottom:30px;width:300px}
+.cover .a1{position:absolute;right:360px;bottom:60px;width:140px;transform:rotate(-12deg)}
+.bubble{position:relative;background:#fff;border:3px solid var(--teal);border-radius:26px;padding:16px 24px;font-size:28px}
+/* generic grids */
+.grid{display:grid;gap:22px}
+.card{background:#fff;border-radius:22px;border:3px solid var(--teal-l);padding:16px 18px;box-shadow:0 5px 0 var(--teal-l)}
+.card .ic{width:110px;height:110px;margin:0 auto 6px}
+.card b{display:block;font-family:Jua;font-weight:400;font-size:30px;color:var(--teal-d);text-align:center}
+.card p{font-size:23px;text-align:center;line-height:1.35}
+.big{font-size:32px;line-height:1.6}
+.hl{background:linear-gradient(transparent 60%,#ffe58a 60%);font-weight:bold}
+.term{display:inline-block;background:var(--coral);color:#fff;border-radius:12px;padding:0 12px;font-family:Jua}
+/* steps row */
+.steps{display:flex;gap:14px;align-items:stretch}
+.step{flex:1;background:#fff;border:3px solid var(--teal-l);border-radius:22px;padding:14px 12px;text-align:center;position:relative;box-shadow:0 5px 0 var(--teal-l)}
+.step .n{position:absolute;left:-10px;top:-14px;width:44px;height:44px;border-radius:50%;background:var(--teal);color:#fff;font-family:Jua;font-size:26px;display:grid;place-items:center;border:3px solid #fff}
+.step .ic{width:110px;height:110px;margin:8px auto 4px}
+.step p{font-size:23px;line-height:1.35}
+.tip{display:flex;gap:14px;align-items:center;background:#fff4cf;border:3px dashed #e7b92f;border-radius:20px;padding:12px 22px;font-size:25px}
+.tip i{font-style:normal;font-size:40px}
+table.cmp{width:100%;border-collapse:separate;border-spacing:0 12px}
+table.cmp td{vertical-align:middle;background:#fff;padding:12px 18px;font-size:23px}
+table.cmp td:first-child{border-radius:20px 0 0 20px;width:150px;text-align:center;font-family:Jua;font-size:36px;color:#fff}
+table.cmp td:last-child{border-radius:0 20px 20px 0;width:420px}
+.eval{display:grid;gap:14px}
+.eval div{display:flex;align-items:center;gap:20px;background:#fff;border-radius:20px;padding:16px 26px;font-size:30px;border:3px solid var(--teal-l)}
+.eval span{margin-left:auto;font-size:34px;letter-spacing:8px}
+.btns{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:9}
+.btns button,.btns a{font:inherit;font-family:Jua;background:#ffffff22;color:#fff;border:2px solid #ffffff55;border-radius:30px;padding:6px 20px;font-size:18px;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btns button:active{background:#ffffff55}
+.bar{position:fixed;left:0;top:0;height:6px;background:var(--sun);transition:width .3s;z-index:9}
+.zone{position:fixed;top:0;bottom:0;width:14%;z-index:5}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div id="stage"></div>
+<div class="zone" style="left:0" id="zl"></div><div class="zone" style="right:0" id="zr"></div>
+<div class="btns"><button id="prev">◀ 이전</button><button id="next">다음 ▶</button><button id="fs">전체화면</button><a href="index.html">처음으로</a></div>
+<script src="art.js"></script>
+<script>
+const A = ART;
+const steps6 = [
+  ['망가진 부분을 확인하고 바느질 방법 계획하기', A.hole],
+  ['도구 준비하기', A.thread + ''],
+  ['바늘에 실을 꿰고 시작매듭 짓기', A.needle],
+  ['바느질하기', A.kid('#2b2b3a', '#a78bd6', 'smile', true)],
+  ['끝매듭 짓기', A.sock],
+  ['도구 정리하기', A.pincushion]
+];
+const tools = [
+  ['옷감', A.fabric, '바느질의 바탕이 되는 천'], ['시침 핀', A.pin, '바느질을 하기 위해 옷감을 고정할 때 사용'],
+  ['자', A.ruler, '길이를 재거나 바느질선을 그을 때 사용'], ['바늘', A.needle, '옷감을 바느질할 때 사용'],
+  ['실', A.thread, '바늘에 연결하여 옷감을 꿰맬 때 사용'], ['초크', A.chalk, '옷감에 바느질 선을 그을 때 사용'],
+  ['가위', A.scissors, '실을 자를 때 사용'], ['골무', A.thimble, '바느질을 할 때 바늘귀를 밀거나 손가락을 바늘로부터 보호하기 위해 사용'],
+  ['바늘꽂이', A.pincushion, '쓰지 않는 바늘과 시침 핀을 꽂아 둘 때 사용'], ['마름질 가위', A.bigScissors, '옷감을 필요한 모양으로 자를 때 사용']
+];
+const slides = [
+/* 1 표지 */
+`<section class="slide cover"><div class="num pop">2</div><h1 class="pop" style="--d:1">옷의 간단한<br>수선</h1>
+ <div class="tag pop" style="--d:2">실과 · 손바느질로 옷을 고쳐 보아요</div>
+ <div class="a1 pop" style="--d:3">${A.shirt}</div><div class="k pop" style="--d:3">${A.kid('#3a2a1f', '#f2c94c', 'smile', false)}</div></section>`,
+/* 2 생각 열기 */
+`<section class="slide"><h2 class="pop">생각 열기</h2>
+ <div style="display:flex;gap:40px;align-items:center;margin-top:30px">
+  <div class="pop" style="--d:1;width:330px">${A.kid('#2b2b3a', '#ef6f5e', 'think')}</div>
+  <div style="flex:1"><div class="bubble pop" style="--d:2;font-size:32px;margin-bottom:34px">내가 좋아해서 자주 입던 옷인데…<br>그만 망가져 버렸어요.</div>
+  <div class="pop big" style="--d:3"><b class="teal">Q.</b> 망가진 옷을 <span class="hl">스스로 고쳐 입어 본 적</span>이 있나요?</div>
+  <div class="pop" style="--d:4;width:130px;margin-top:20px;margin-left:auto">${A.sock}</div></div></div><div class="pg">2</div></section>`,
+/* 3 수선 경우 */
+`<section class="slide"><h2 class="pop">옷을 <span class="teal">수선</span>하는 경우</h2>
+ <p class="sub pop" style="--d:1"><span class="term">수선</span> 오래되거나 고장 난 것을 다시 쓸 수 있게 고침</p>
+ <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+  ${[[A.shirt, '단추가 떨어졌을 때', '바늘로 단추를 다시 달아요'], [A.zipper, '지퍼가 고장 났을 때', '손봐서 다시 입어요'], [A.hole, '옷이 찢어지거나 구멍이 났을 때', '바늘로 꿰매거나 패치를 붙여요'],
+     [A.rubber, '옷이 커서 맞지 않을 때', '고무줄을 넣어 몸에 맞게 해요'], [A.leak, '옷감의 실이 풀렸을 때', '빠져나온 실을 반대 방향으로 넣어 고쳐요'], [A.sweater, '옷이 내 몸보다 길 때', '길이를 줄이거나 접은 뒤 바느질해요']]
+  .map(([i, t, d], k) => `<div class="card pop" style="--d:${k + 2}"><div class="ic">${i}</div><b style="font-size:26px">${t}</b><p>${d}</p></div>`).join('')}
+ </div><div class="pg">3</div></section>`,
+/* 4 수선의 좋은 점 */
+`<section class="slide"><h2 class="pop">옷을 수선하면 좋은 점</h2>
+ <p class="sub pop" style="--d:1">옷이 찢어지거나 단추·지퍼가 고장 나도 수선하면 다시 입을 수 있어요.</p>
+ <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:6px">
+  <div class="card pop" style="--d:2"><div class="ic" style="width:130px;height:130px">${A.heart}</div><b>소중히 여기는 마음</b><p>물건을 소중하게 여기게 돼요</p></div>
+  <div class="card pop" style="--d:3"><div class="ic" style="width:130px;height:130px">${A.shirt}</div><b>스스로 관리하는 습관</b><p>옷을 스스로 관리하는 습관을 길러요</p></div>
+  <div class="card pop" style="--d:4"><div class="ic" style="width:130px;height:130px">${A.sweater}</div><b>비용·자원 절약</b><p>필요 없는 지출을 줄이고 자원을 아껴요</p></div>
+ </div>
+ <div class="tip pop" style="--d:5;margin-top:26px"><i>💡</i><div><b>수선 도구는?</b> 바늘·실, <span class="term">재봉틀</span>, <span class="term">패치</span>(구멍 난 곳에 대는 천), 고무줄 같은 것을 써요.</div></div><div class="pg">4</div></section>`,
+/* 5 손바느질이란 */
+`<section class="slide"><h2 class="pop"><span class="teal">손바느질</span>로 옷을 수선해 볼까요</h2>
+ <div style="display:flex;gap:30px;align-items:center;margin-top:20px">
+  <div style="flex:1.3"><p class="big pop" style="--d:1"><span class="term">손바느질</span>은 기계를 쓰지 않고 <span class="hl">직접 손으로 바늘에 실을 꿰어</span> 바느질을 하는 방법이에요.</p>
+  <p class="big pop" style="--d:2" style="margin-top:20px">단추가 떨어졌거나 바느질한 부분이 뜯어졌을 때 손바느질로 고쳐 입을 수 있어요.</p>
+  <div class="tip pop" style="--d:3;margin-top:24px"><i>🎯</i>오늘 목표: 필요한 <b>재료와 도구</b>를 알고, 바느질이 필요한 옷을 <b>스스로 수선</b>해 봐요!</div></div>
+  <div class="pop" style="--d:2;width:300px">${A.kid('#2b2b3a', '#a78bd6', 'smile', true)}</div></div><div class="pg">5</div></section>`,
+/* 6 과정 */
+`<section class="slide"><h2 class="pop">손바느질로 옷을 수선하는 과정</h2>
+ <div class="steps" style="margin-top:46px">
+  ${steps6.map(([t, i], k) => `<div class="step pop" style="--d:${k + 1}"><div class="n">${k + 1}</div><div class="ic">${i}</div><p>${t}</p></div>`).join('')}
+ </div>
+ <div class="tip pop" style="--d:8;margin-top:44px"><i>🐤</i>옷감이 두꺼울수록 더 큰 바늘이 필요해요. 그래서 옷감의 특성에 따라 도구를 준비해야 해요.</div><div class="pg">6</div></section>`,
+/* 7 도구 */
+`<section class="slide" style="padding-top:34px"><h2 class="pop">손바느질에 필요한 재료와 도구</h2>
+ <div class="grid" style="grid-template-columns:repeat(5,1fr);gap:14px;margin-top:10px">
+  ${tools.map(([n, i, d], k) => `<div class="card pop" style="--d:${k % 5 + 1};padding:10px 12px;height:262px"><div class="ic" style="width:90px;height:90px">${i}</div><b style="font-size:27px">${n}</b><p style="font-size:19px">${d}</p></div>`).join('')}
+ </div><div class="pg">7</div></section>`,
+/* 8 실 꿰기 */
+`<section class="slide"><h2 class="pop">손바느질의 기초 ① 실 꿰기와 <span class="teal">시작매듭</span></h2>
+ <div class="steps" style="margin-top:44px">
+  ${[['바늘귀에 꿰기 쉽도록 실을 깔끔하게 잘라요', A.scissors], ['한 손으로 바늘귀를 위로 해 잡고, 다른 손으로 실 끝을 바늘귀에 꿰어요', A.needle], ['실 끝을 집게손가락에 한 바퀴 감아요', A.thread],
+     ['감은 실을 엄지·집게손가락으로 밀어 매듭 고리를 만들어요', A.rubber], ['고리를 실의 끝부분으로 잡아당겨 매듭을 지어요', A.chalk.replace('#8fd6e8', '#8fd6e8')]]
+  .map(([t, i], k) => `<div class="step pop" style="--d:${k + 1}"><div class="n">${k + 1}</div><div class="ic">${i}</div><p>${t}</p></div>`).join('')}
+ </div><div class="tip pop" style="--d:7;margin-top:40px"><i>👉</i>시작매듭은 실이 바늘땀 사이로 빠져나오지 않게 해 줘요. 손가락으로 돌돌 말아 천천히!</div><div class="pg">8</div></section>`,
+/* 9 바느질 종류 */
+`<section class="slide" style="padding-top:34px"><h2 class="pop">손바느질의 기초 ② 바느질하기</h2>
+ <table class="cmp">
+  ${[['running', '#1fae6b'], ['back', '#2f7fd0'], ['basting', '#e08a2d']].map(([k, c], i) => `<tr class="pop" style="--d:${i + 1}">
+   <td style="background:${c}">${STITCH[k].name}</td><td>${STITCH[k].use}<br><b style="color:${c}">${STITCH[k].size}</b></td><td style="width:420px;padding:6px">${A.stitch(k, 400, 120)}</td></tr>`).join('')}
+ </table><div class="pg">9</div></section>`,
+/* 10 끝매듭 */
+`<section class="slide"><h2 class="pop">손바느질의 기초 ③ <span class="teal">끝매듭</span> 짓기</h2>
+ <div class="steps" style="margin-top:44px">
+  ${[['겉에 보이지 않도록 옷감 안쪽에서 매듭짓기를 시작해요', A.shirt], ['바늘 끝에 실을 두세 번 감아요', A.needle], ['감은 실을 손가락으로 누르며 바늘을 빼내 매듭을 지어요', A.thread], ['가위로 실을 조금 남기고 잘라요', A.scissors]]
+  .map(([t, i], k) => `<div class="step pop" style="--d:${k + 1}"><div class="n">${k + 1}</div><div class="ic">${i}</div><p>${t}</p></div>`).join('')}
+ </div>
+ <div class="tip pop" style="--d:6;margin-top:34px"><i>⚠️</i><div>바느질을 할 때는 바늘 끝을 아래로 향하게 하여 찔리지 않도록 조심!<br>사용한 뒤에는 바늘을 바늘꽂이에 안전하게 꽂아 두어요. 가위는 손잡이 쪽을 상대에게 주어요.</div></div><div class="pg">10</div></section>`,
+/* 11 두 구멍 단추 */
+`<section class="slide"><h2 class="pop"><span class="teal">활동</span> 단추가 떨어진 옷 수선하기 ① 두 구멍 단추</h2>
+ <div style="display:flex;gap:26px;margin-top:30px;align-items:center">
+  <div class="pop" style="--d:1;width:230px;flex:none"><div class="card">${A.button2}<b style="margin-top:6px">두 구멍 단추</b></div></div>
+  <div class="steps" style="flex:1;flex-wrap:wrap;gap:34px 14px">
+  ${['시작매듭을 지은 뒤, 옷 안쪽에서 바깥쪽으로 바늘을 빼어 단춧구멍 하나를 통과시켜요', '다른 구멍으로 바늘을 넣어 옷의 안쪽으로 바늘을 빼내요', '이 과정을 4~5번 반복해요', '단추와 옷 사이로 바늘을 빼고, 실을 2~3회 감아 실기둥을 만들어요', '바늘을 옷 안쪽으로 빼내요', '끝매듭을 짓고 마무리해요']
+  .map((t, k) => `<div class="step pop" style="--d:${k + 2};flex:0 0 calc(33.3% - 10px);padding:20px 12px 12px"><div class="n">${k + 1}</div><p style="font-size:21px">${t}</p></div>`).join('')}
+  </div></div><div class="pg">11</div></section>`,
+/* 12 기둥 단추 */
+`<section class="slide"><h2 class="pop"><span class="teal">활동</span> 단추가 떨어진 옷 수선하기 ② 기둥 단추</h2>
+ <div style="display:flex;gap:26px;margin-top:40px;align-items:center">
+  <div class="pop" style="--d:1;width:230px;flex:none"><div class="card">${A.buttonShank}<b style="margin-top:6px">기둥 단추</b></div></div>
+  <div class="steps" style="flex:1">
+  ${['시작매듭을 지은 뒤, 단추를 달 위치의 옷 안쪽에서 바늘을 빼어 단추고리를 통과시켜요', '다시 옷 안쪽으로 바늘을 빼내요. 이 과정을 3~4회 반복해요', '바늘을 옷 안쪽으로 빼내고 끝매듭을 지어 마무리해요']
+  .map((t, k) => `<div class="step pop" style="--d:${k + 2};padding:24px 14px 16px"><div class="n">${k + 1}</div><p style="font-size:24px">${t}</p></div>`).join('')}
+  </div></div>
+ <div class="tip pop" style="--d:6;margin-top:36px"><i>🐤</i>단추를 달 때 바늘이 단추에 가려 보이지 않을 수 있어요. 그러므로 바늘이 빠져나오는 위치를 <b>천천히</b> 확인하며 바느질해요.</div><div class="pg">12</div></section>`,
+/* 13 평가 */
+`<section class="slide"><h2 class="pop">스스로 평가해 봅시다</h2><p class="sub pop" style="--d:1">잘함 😀 · 보통 😐 · 노력 요함 🙁 중에 골라 보아요</p>
+ <div class="eval">
+  ${['수선이 잘되었나요?', '도구를 안전하게 사용했나요?', '수선을 마친 뒤 사용한 재료와 도구를 정리했나요?', '단추가 떨어진 옷을 스스로 수선할 수 있나요?'].map((t, k) => `<div class="pop" style="--d:${k + 2}"><b class="jua teal">${k + 1}</b>${t}<span>😀😐🙁</span></div>`).join('')}
+ </div><div class="pg">13</div></section>`,
+/* 14 마무리 */
+`<section class="slide cover"><div class="pop" style="--d:0;position:absolute;left:80px;top:80px;width:260px">${A.kid('#2b2b3a', '#4fa3d9', 'wow')}</div>
+ <h1 class="pop" style="--d:1;position:absolute;left:400px;top:140px;font-size:84px;line-height:1.15">이제 직접<br>연습해 볼까요?</h1>
+ <div class="tag pop" style="--d:2;left:400px;top:420px;position:absolute;font-size:30px">바느질 학습 앱에서 도구·순서·바늘땀·단추 달기를 연습해요</div>
+ <a href="app.html" class="pop jua" style="--d:3;position:absolute;left:400px;top:520px;background:var(--coral);color:#fff;border-radius:40px;padding:14px 46px;font-size:38px;text-decoration:none;box-shadow:0 6px 0 #c24a3a">앱 열기 ▶</a>
+ <div class="k pop" style="--d:3;position:absolute;right:70px;bottom:40px;width:200px">${A.pincushion}</div></section>`
+];
+
+const stage = document.getElementById('stage');
+stage.innerHTML = slides.join('');
+const els = [...stage.querySelectorAll('.slide')];
+let cur = 0;
+try { cur = Math.min(slides.length - 1, +localStorage.getItem('sew-slide') || 0); } catch (e) {}
+function show(i) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  els.forEach((e, k) => { e.classList.remove('on'); if (k === cur) { void e.offsetWidth; e.classList.add('on'); } });
+  document.getElementById('bar').style.width = ((cur + 1) / slides.length * 100) + '%';
+  try { localStorage.setItem('sew-slide', cur); } catch (e) {}
+}
+function fit() {
+  const s = Math.min(innerWidth / 1280, (innerHeight - 40) / 720);
+  stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize', fit); fit(); show(cur);
+const go = d => show(cur + d);
+prev.onclick = () => go(-1); next.onclick = () => go(1);
+zl.onclick = () => go(-1); zr.onclick = () => go(1);
+fs.onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) go(1);
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) go(-1);
+  if (e.key === 'Home') show(0); if (e.key === 'End') show(slides.length - 1);
+});
+let sx = null;
+addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1); sx = null; });
+</script>
+</body>
+</html>

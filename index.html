@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>옷의 간단한 수선 – 손바느질 배우기</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;display:grid;place-items:center;padding:24px;font-family:'Gowun Dodum','Malgun Gothic',sans-serif;background:linear-gradient(160deg,#a3e4e6,#fffdf6 60%);color:#26323a}
+.w{max-width:860px;text-align:center}
+h1{font-family:Jua;font-weight:400;font-size:clamp(40px,7vw,70px);color:#0f7a80;line-height:1.15}
+p{font-size:22px;margin:8px 0 26px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+a{display:block;text-decoration:none;color:inherit;background:#fff;border:4px solid #d9f3f4;box-shadow:0 7px 0 #b9e5e7;border-radius:30px;padding:26px 18px}
+a:active{transform:translateY(5px);box-shadow:0 2px 0 #b9e5e7}
+a svg{width:120px;height:120px;margin:0 auto 6px;display:block}
+a b{font-family:Jua;font-weight:400;font-size:34px;color:#1aa0a6;display:block}
+a span{font-size:20px}
+small{display:block;margin-top:26px;color:#6b7b83}
+</style>
+</head>
+<body>
+<div class="w">
+  <h1>옷의 간단한 수선<br>손바느질 배우기</h1>
+  <p>선생님과 함께 슬라이드로 배우고, 앱에서 직접 연습해요!</p>
+  <div class="row">
+    <a href="slides.html"><span id="i1"></span><b>수업 슬라이드</b><span>수선하는 경우 · 도구 · 바느질 방법</span></a>
+    <a href="app.html"><span id="i2"></span><b>바느질 연습장</b><span>도구 퀴즈 · 순서 맞추기 · 바늘땀 · 단추 달기</span></a>
+  </div>
+  <small>실과 – 옷의 간단한 수선 (그림은 모두 직접 그렸어요)</small>
+</div>
+<script src="art.js"></script>
+<script>
+document.getElementById('i1').innerHTML = ART.kid('#3a2a1f', '#f2c94c', 'smile');
+document.getElementById('i2').innerHTML = ART.pincushion;
+</script>
+</body>
+</html>
