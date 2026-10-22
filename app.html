@@ -277,7 +277,7 @@ function setMsg(t, color) { const m = $('#smsg'); if (!m) return; m.style.color 
 /* ----- 단계 ----- */
 function steps() { return [['knot1', '시작매듭'], ['sew', '바느질'], ...(S.M.wrap ? [['wrap', '실기둥']] : []), ['knot2', '끝매듭'], ['tidy', '정리']]; }
 function toPhase(p) {
-  S.phase = p; S.drag = null;
+  S.phase = p; S.drag = null; S.piercing = null;
   S.gest = ['knot1', 'wrap', 'knot2'].includes(p) ? { pts: [], total: 0, lastAng: null, last: null, need: p === 'knot2' ? 3.6 * Math.PI : 3.4 * Math.PI, ok: false, down: false } : null;
   if (p === 'sew') setMsg('💡 ' + TIPS[S.id]); else if (p === 'done') setMsg(''); else setMsg('');
   ui(); render();
@@ -324,14 +324,14 @@ function sewDown(e, q) {
   try { $('#ssvg').setPointerCapture(e.pointerId); } catch (err) {}
   if (ph === 'knot1' || ph === 'wrap' || ph === 'knot2') return gestDown(e, q);
   if (ph === 'tidy') { const P = S.pos; if (P && Math.hypot(q.x - P.x, q.y - (P.y + OFF)) < 90) { S.tidyDrag = { id: e.pointerId, x: q.x, y: q.y, ang: -40 }; render(); } else setMsg('바늘을 잡고 바늘꽂이로 끌어 주세요!'); return; }
-  if (ph !== 'sew') return;
+  if (ph !== 'sew' || S.piercing) return;
   S.pull = null; S.flash = null;
   if (!S.pos) { /* 뒷면에서 첫 바늘을 올리는 곳 누르기 */
     if (q.y < BY0 || q.y > BY1 || q.x < 20 || q.x > 880) { setMsg('뒷면 천에서 바늘이 올라올 곳을 눌러 주세요!', '#c24a3a'); return; }
     let P = snapPt(q.x, Math.max(BY0 + 8, Math.min(BY1 - 8, q.y)) - OFF);
     if (S.M.kind === 'button') { const T = expected(); if (Math.hypot(P.x - T.x, P.y - T.y) > 40) { setMsg('반짝이는 곳(① 구멍 아래)을 눌러요!', '#c24a3a'); return; } P = { x: T.x, y: T.y }; }
     S.pos = { x: P.x, y: P.y, side: 'front' }; S.startPt = { x: P.x, y: P.y }; if (S.M.kind === 'button') S.k++;
-    S.flash = { x: P.x, y: P.y, side: 'front' }; setMsg(''); ui(); render(); return;
+    S.flash = { x: P.x, y: P.y, side: 'front' }; startPierce(P.x, P.y, 'back', true); setMsg(''); ui(); render(); return;
   }
   const off = S.pos.side === 'back' ? OFF : 0;
   if (Math.hypot(q.x - S.pos.x, q.y - (S.pos.y + off)) > 90) { setMsg('바늘을 꾹 잡고 실을 끌어 보세요!'); return; }
@@ -381,6 +381,7 @@ function sewUp(e, q) {
   S.pull = { s, res, t: 0 };
   S.pos = { x: P.x, y: P.y, side: side === 'front' ? 'back' : 'front' };
   S.flash = { x: P.x, y: P.y, side: S.pos.side };
+  startPierce(P.x, P.y, side, P.x >= A.x);
   try { navigator.vibrate && navigator.vibrate(18); } catch (err) {}
   (function tick() { if (!S || !S.pull) return; S.pull.t += .1; if (S.pull.t >= 1) S.pull = null; render(); if (S && S.pull) requestAnimationFrame(tick); })();
   if (S.M.kind === 'button') { S.k++; if (S.k >= S.M.seq.length) { S.praiseUntil = Date.now() + 2400; setTimeout(() => S && render(), 2500); setMsg(`${S.M.name} 바느질 완료! ${S.M.wrap ? '이제 실을 감아 실기둥을 만들어요.' : '이제 끝매듭!'}`, '#1fae6b'); toPhase(S.M.wrap ? 'wrap' : 'knot2'); return; } }
@@ -475,11 +476,30 @@ function finish() {
 }
 
 /* ----- 그리기 ----- */
-function needleG(x, y, ang, faded) {
-  return `<g transform="translate(${x} ${y}) rotate(${ang})" opacity="${faded ? .6 : 1}" style="filter:drop-shadow(0 4px 3px #0003)">
+function needleG(x, y, ang, faded, f = 1) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang}) scale(${f} 1)" opacity="${faded ? .6 : 1}" style="filter:drop-shadow(0 4px 3px #0003)">
     <path d="M0 0 L-70 -4.5 L-98 -4.5 L-98 4.5 L-70 4.5Z" fill="#d5dde4" stroke="#7d8996" stroke-width="2" stroke-linejoin="round"/>
     <ellipse cx="-88" cy="0" rx="6" ry="2" fill="#5f6b77"/><line x1="-66" y1="-2" x2="-6" y2="-0.6" stroke="#fff" stroke-width="1.5" stroke-opacity=".8"/></g>`;
 }
+/* 바늘이 천을 푹 찌르는 장면: 바늘이 일어서며 구멍으로 들어가고(위에서 보면 짧아져요), 반대 면에서 솟아 나와요 */
+function pierceG(x, from, p, dirFrom, dirTo, y0 = LINEY) {
+  const yFrom = from === 'front' ? y0 : y0 + OFF, yTo = from === 'front' ? y0 + OFF : y0;
+  const e = v => v < .5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2;
+  const ring = (y, r, o) => `<circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="none" stroke="#7a5a14" stroke-width="3" opacity="${Math.max(0, o).toFixed(2)}"/>`;
+  const A = Math.min(1, p / .5), B = p >= .5 ? (p - .5) / .5 : 0, cosd = d => Math.max(.14, Math.cos(d * Math.PI / 180));
+  let g = ring(yFrom, 6 + 20 * Math.min(1, p / .6), .6 * (1 - p)) + (p >= .5 ? ring(yTo, 6 + 18 * B, .6 * (1 - B)) : '');
+  g += `<circle cx="${x}" cy="${yFrom}" r="${(4 + 2 * A).toFixed(1)}" fill="#5a3d08"/>`;
+  if (p < .5) g += needleG(x, yFrom, dirFrom ? 12 : 168, false, cosd(88 * e(A)));
+  else g += `<circle cx="${x}" cy="${yTo}" r="${(4 + 2 * B).toFixed(1)}" fill="#5a3d08"/>` + needleG(x, yTo, dirTo ? 12 : 168, false, cosd(88 - 48 * e(B)));
+  return g;
+}
+function startPierce(x, y, from, dir) {
+  const t0 = performance.now();
+  S.piercing = { x, y, from, dir, p: 0, t0 };
+  setTimeout(() => { if (S && S.piercing && S.piercing.t0 === t0) { S.piercing = null; render(); } }, 820); // 화면이 느려도 입력이 막히지 않게
+  (function tick(now) { if (!S || !S.piercing) return; S.piercing.p = Math.min(1, (now - t0) / 800); if (S.piercing.p >= 1) S.piercing = null; render(); if (S && S.piercing) requestAnimationFrame(tick); })(t0);
+}
+
 function say() {
   const ph = S.phase, M = S.M, F = S.stitches.filter(s => s.side === 'front').length;
   const t = { knot1: '🧶 <b>시작매듭</b>: 펜으로 흰 칸에 동그라미를 2번 그려 실을 손가락에 감아요',
@@ -536,7 +556,8 @@ function render() {
   g += `<g transform="translate(765 190)" opacity="${ph === 'tidy' ? 1 : .55}">${ph === 'tidy' ? '<circle class="pulse" cx="45" cy="46" r="48" fill="#ffd34d" opacity=".5"/>' : ''}${ART.pincushion.replace('<svg ', '<svg width="90" height="90" ')}</g>`;
   /* 바늘 */
   if (ph === 'sew') {
-    if (S.pos) { const side = S.pos.side, off = side === 'back' ? OFF : 0, last = S.stitches[S.stitches.length - 1];
+    if (S.piercing) g += pierceG(S.piercing.x, S.piercing.from, S.piercing.p, S.piercing.dir, S.piercing.dir, S.piercing.y);
+    else if (S.pos) { const side = S.pos.side, off = side === 'back' ? OFF : 0, last = S.stitches[S.stitches.length - 1];
       g += d ? needleG(d.x, d.y + off, d.ang, false) : needleG(S.pos.x, S.pos.y + off, last && last.b.x < last.a.x ? 168 : 12, false); }
     else g += `<text x="${VW / 2}" y="${BY0 + 80}" font-size="26" text-anchor="middle" font-family="Jua" fill="#7a6a4a">👆 바늘이 올라올 곳을 눌러요</text>`;
   } else if (ph === 'knot2' || ph === 'wrap') { /* 제자리 바늘 */ }
@@ -571,14 +592,14 @@ function demoBuild(type) {
   const c = DEMO[type], p = c.pos, mn = Math.min(...p), mx = Math.max(...p), x0 = 450 - (mn + mx) / 2 * c.u, X = v => x0 + v * c.u;
   const fwd = Math.sign(p[p.length - 1] - p[0]) || 1, ev = [];
   ev.push({ k: 'knot1', dur: 2200, cap: '🧶 먼저 <b>시작매듭</b>을 지어요. 실 끝에 매듭을 만들어야 실이 쑥 빠지지 않아요.' });
-  ev.push({ k: 'up', n: 1, x: X(p[0]), dur: 1800, cap: '<b>①</b> <b>뒷면</b>에서 바늘을 올려요. 바늘이 앞면 천 위로 나타나요.', hint: '' });
+  ev.push({ k: 'up', n: 1, x: X(p[0]), dur: 2800, cap: '<b>①</b> <b>뒷면</b>에서 바늘을 올려요. 바늘이 앞면 천 위로 나타나요.', hint: '' });
   for (let i = 0; i < p.length - 1; i++) {
     const front = i % 2 === 0, units = Math.abs(p[i + 1] - p[i]), dir = (p[i + 1] - p[i]) * fwd >= 0 ? '앞으로' : '뒤로', n = i + 2;
     let hint = '';
     if (type === 'running') hint = i === 0 ? '앞면에서 1칸 → 뒷면에서도 1칸! 똑같이 해요' : i === 3 ? '겉·안 길이가 같아서 바늘땀이 고르게 줄지어요' : '';
     if (type === 'back') hint = i === 0 ? '박음질은 먼저 <b>한 칸 뒤로</b> 가요' : i === 1 ? '뒷면에서는 <b>두 칸 앞으로</b> 가요 (안쪽 땀은 두 배!)' : i === 2 ? '앞 땀의 끝에서 다시 뒤로 — 빈틈 없이 이어져요' : '';
     if (type === 'basting') hint = i === 0 ? '겉 바늘땀을 <b>길게</b> (3칸)' : i === 1 ? '뒷면 바늘땀은 <b>짧게</b> (1칸)' : i === 3 ? '임시로 고정하는 바느질이라 듬성듬성해요' : '';
-    ev.push({ k: 'seg', i, front, a: X(p[i]), b: X(p[i + 1]), n, units, dur: Math.max(1900, Math.abs(X(p[i + 1]) - X(p[i])) * 9), hint,
+    ev.push({ k: 'seg', i, front, a: X(p[i]), b: X(p[i + 1]), n, units, dur: Math.max(2800, Math.abs(X(p[i + 1]) - X(p[i])) * 12), hint,
       cap: front ? `<b>${circ(n)}</b> <b>앞면</b>: 바늘을 ${units}칸 ${dir} 가서 구멍에 넣어요. 눈에 보이는 <b>겉 바늘땀 ${units}칸</b>!`
         : `<b>${circ(n)}</b> <b>뒷면</b>: 바늘이 천 속에서 ${units}칸 ${dir} 가요. 보이지 않는 <b>안 바늘땀 ${units}칸</b>, 다음 구멍에서 올려요.` });
   }
@@ -630,7 +651,7 @@ function demoRender() {
   g += `<line x1="50" y1="${LINEY}" x2="850" y2="${LINEY}" stroke="#7fcfe0" stroke-width="5" stroke-linecap="round" stroke-dasharray="14 10" opacity=".7"/>`;
   new Set(p).forEach(v => { g += `<circle cx="${X(v)}" cy="${LINEY}" r="6" fill="#fff" stroke="#3a95ab" stroke-width="2.5"/>`; });
   /* 실: 반대 면에는 흐릿하게 비쳐 보여요 */
-  const done = [], partial = cur.k === 'seg' ? { e: cur, f: ease(t) } : null;
+  const done = [], partial = cur.k === 'seg' ? { e: cur, f: ease(Math.min(1, t / .72)) } : null;
   for (let k = 0; k < idx; k++) if (ev[k].k === 'seg') done.push(ev[k]);
   const all = done.concat(partial ? [partial.e] : []);
   all.forEach(s => { const f = s === (partial && partial.e) ? partial.f : 1; g += `<path d="${pathAt(s.a, s.b, s.front ? OFF : 0, f)}" stroke="${col}" stroke-width="5" stroke-dasharray="8 9" stroke-linecap="round" opacity=".22"/>`; });
@@ -661,8 +682,10 @@ function demoRender() {
   /* 바늘 */
   const ndl = (x, y, a) => needleG(x, y, a, false);
   if (cur.k === 'knot1') g += ndl(fx - 70, LINEY + OFF + 52, 12);
-  else if (cur.k === 'up') { const e = ease(t); g += t <= .5 ? ndl(cur.x, LINEY + OFF + 60 - e * 120 + 0, -90) : ndl(cur.x, LINEY - (1 - e) * 0, -80) + `<circle class="flash" cx="${cur.x}" cy="${LINEY}" r="28" fill="none" stroke="#ffd34d" stroke-width="6"/>`; }
-  else if (cur.k === 'seg') { const f = ease(t), x = cur.a + (cur.b - cur.a) * f, dirR = cur.b >= cur.a; g += ndl(x, LINEY + (cur.front ? 0 : OFF), dirR ? 12 : 168); if (t > .9) g += `<circle class="flash" cx="${cur.b}" cy="${LINEY + (cur.front ? OFF : 0)}" r="28" fill="none" stroke="#ffd34d" stroke-width="6"/>`; }
+  else if (cur.k === 'up') { const nx = ev[idx + 1], dirN = nx && nx.k === 'seg' ? nx.b >= nx.a : true; g += t < .35 ? ndl(cur.x - 90 * (1 - ease(t / .35)), LINEY + OFF, 12) : pierceG(cur.x, 'back', (t - .35) / .65, true, dirN); }
+  else if (cur.k === 'seg') { const dirR = cur.b >= cur.a, nx = ev[idx + 1], dirN = nx && nx.k === 'seg' ? nx.b >= nx.a : dirR, yy = LINEY + (cur.front ? 0 : OFF);
+    if (t < .72) { const u = ease(t / .72), x = cur.a + (cur.b - cur.a) * u, f = Math.max(.14, Math.cos(40 * (1 - ease(Math.min(1, t / .15))) * Math.PI / 180)); g += needleG(x, yy, dirR ? 12 : 168, false, f); }
+    else g += pierceG(cur.b, cur.front ? 'front' : 'back', (t - .72) / .28, dirR, dirN); }
   else if (cur.k === 'knot2') g += ndl(lastX + 20 * Math.sin(t * 18), LINEY + OFF - 4, 168);
   else if (cur.k === 'tidy') { const f = ease(t), x = lastX + (826 - lastX) * f, y = LINEY + OFF + (224 - LINEY - OFF) * f - Math.sin(f * Math.PI) * 40; g += ndl(x, y, 12 + (-50 - 12) * f); }
   else if (cur.k === 'done') g += ndl(826, 224, -50) + `<text x="450" y="${LINEY + 8}" font-size="46" text-anchor="middle" font-family="Jua" fill="#1fae6b">👏 완성!</text>`;
