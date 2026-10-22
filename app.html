@@ -56,7 +56,7 @@ h2{font-size:30px;color:var(--teal-d);margin-bottom:4px}
 /* stitch / button svg */
 .board{background:#fff;border:3px solid var(--teal-l);border-radius:26px;padding:10px;touch-action:none}
 .board svg{width:100%;height:auto;display:block}
-.say{background:#fff4cf;border:3px dashed #e7b92f;border-radius:20px;padding:12px 18px;font-size:23px;margin-bottom:12px;min-height:104px;display:flex;align-items:center;gap:10px}
+.say{background:#fff4cf;border:3px dashed #e7b92f;border-radius:20px;padding:12px 18px;font-size:23px;margin-bottom:12px;min-height:76px;display:flex;align-items:center;gap:10px}
 .pulse{animation:pulse 1s infinite;transform-box:fill-box;transform-origin:center}
 @keyframes flashk{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}.flash{animation:flashk .5s both;transform-box:fill-box;transform-origin:center}
 @keyframes pulse{50%{transform:scale(1.35);opacity:.55}}
@@ -72,6 +72,23 @@ h2{font-size:30px;color:var(--teal-d);margin-bottom:4px}
 .stamp{background:#fff;border:3px dashed #d9cfb6;border-radius:20px;padding:10px;text-align:center;font-size:18px;color:#aaa}
 .stamp .e{font-size:42px;filter:grayscale(1);opacity:.35}
 .stamp.got{border:3px solid var(--sun);background:#fff9dc;color:var(--ink)}.stamp.got .e{filter:none;opacity:1}
+.lvl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:20px}.lvl b{font-family:Jua;font-weight:400;color:var(--teal-d)}.lvl span{color:#6b7b83;font-size:18px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.mcard{font:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;background:#fff;border:3px solid var(--teal-l);box-shadow:0 5px 0 var(--teal-l);border-radius:24px;padding:18px 12px;cursor:pointer;color:var(--ink);text-align:center}
+.mcard:active{transform:translateY(4px);box-shadow:0 1px 0 var(--teal-l)}
+.mcard .mi{font-size:46px}.mcard b{font-family:Jua;font-weight:400;font-size:25px;color:var(--teal-d)}.mcard span{font-size:17px;color:#5b6b73}
+.mcard em{font-style:normal;font-family:Jua;margin-top:6px;background:var(--coral);color:#fff;border-radius:20px;padding:4px 18px;font-size:19px}
+.mcard.got{background:#f2fbf5;border-color:#bfe8cf}.mcard.got em{background:var(--ok)}
+.sbar{display:flex;align-items:center;gap:12px;margin-bottom:10px}.sbar b{flex:1;font-size:27px;color:var(--teal-d);text-align:center}
+.btn.small{padding:6px 16px;font-size:18px;box-shadow:none}
+.stepper{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;font-family:Jua}
+.stp{display:inline-flex;align-items:center;gap:6px;background:#eee8d8;color:#8a8268;border-radius:20px;padding:4px 14px 4px 5px;font-size:18px}
+.stp i{font-style:normal;width:26px;height:26px;border-radius:50%;background:#cfc6ae;color:#fff;display:grid;place-items:center;font-size:16px}
+.stp.now{background:#fff4cf;color:#8a5a00;box-shadow:0 0 0 3px #ffb300}.stp.now i{background:#ffb300}
+.stp.ok{background:#e5f8ef;color:#13804d}.stp.ok i{background:var(--ok)}.arr{color:#b6ad94}
+.refbox{display:flex;gap:14px;align-items:center;background:#fff;border:3px solid var(--teal-l);border-radius:20px;padding:10px 14px;margin-bottom:10px;font-size:19px;line-height:1.45}.refbox[hidden]{display:none}
+.rcard{background:#fff;border:4px solid #e3ddd0;border-radius:26px;padding:16px 20px;margin-top:14px;text-align:center}.rcard.good{border-color:var(--ok);background:#f2fbf5}
+.rcard .rst{font-size:44px}.rcard h3{font-size:28px;color:var(--teal-d);margin:4px 0}.rcard ul{text-align:left;max-width:560px;margin:8px auto;font-size:20px;line-height:1.5;padding-left:26px}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,120px);background:var(--ink);color:#fff;padding:12px 26px;border-radius:30px;font-family:Jua;font-size:22px;transition:transform .35s;z-index:30}
 .toast.on{transform:translate(-50%,0)}
 @media(max-width:600px){header h1{font-size:22px}.opts{grid-template-columns:1fr}}
@@ -85,8 +102,7 @@ h2{font-size:30px;color:var(--teal-d);margin-bottom:4px}
 <main>
   <section class="panel" id="p-tools"></section>
   <section class="panel" id="p-order"></section>
-  <section class="panel" id="p-stitch"></section>
-  <section class="panel" id="p-button"></section>
+  <section class="panel" id="p-sew"></section>
   <section class="panel" id="p-eval"></section>
 </main>
 <div class="toast" id="toast"></div>
@@ -109,7 +125,7 @@ function stamp(k) {
 }
 
 /* ---------- 탭 ---------- */
-const TABS = [['tools', '🧰 도구'], ['order', '🔢 순서'], ['stitch', '🪡 바늘땀'], ['button', '🔘 단추 달기'], ['eval', '⭐ 평가']];
+const TABS = [['sew', '🧵 바느질'], ['tools', '🧰 도구'], ['order', '🔢 순서'], ['eval', '⭐ 평가']];
 $('#nav').innerHTML = TABS.map(([k, t]) => `<button class="tab" data-k="${k}">${t}</button>`).join('');
 function tab(k) {
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.k === k));
@@ -191,98 +207,210 @@ function renderOrder() {
   };
 }
 
-/* ---------- 3. 바늘땀: 홈질·박음질·시침질 모두 바늘을 자유롭게 움직여 바느질 ---------- */
-let stType = 'running', penSeen = false, raf = 0, guideOn = true;
-const SW = 900, SH = 330, FR_MIN_Y = 62, FR_MAX_Y = 248;
+/* ---------- 3. 바느질 연습: 펜으로 실을 움직여 천의 앞면·뒷면을 바느질 ---------- */
+const VW = 900, VH = 470, FY0 = 40, FY1 = 190, BY0 = 280, BY1 = 430, OFF = 240, LINEY = 115;
+const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+const seqOf = (ids, n) => Array.from({ length: n }, () => ids).flat();
+const MISSIONS = {
+  running: { kind: 'stitch', name: '홈질', icon: '🟢', color: '#1fae6b', desc: '겉과 안의 바늘땀 길이가 같게', dots: range(0, 17).map(i => 70 + i * 45) },
+  back: { kind: 'stitch', name: '박음질', icon: '🔵', color: '#2f7fd0', desc: '한 땀 뒤로, 두 땀 앞으로', dots: range(0, 17).map(i => 70 + i * 45) },
+  basting: { kind: 'stitch', name: '시침질', icon: '🟠', color: '#e08a2d', desc: '겉은 길게, 안은 짧게', dots: [0, 3, 4, 7, 8, 11, 12, 15, 16].map(i => 70 + i * 45) },
+  two: { kind: 'button', name: '두 구멍 단추 달기', icon: '🔘', color: '#2b2b3a', desc: '구멍 ①②를 오가며 4번', wrap: true, targets: { A: { x: 418, y: 115 }, B: { x: 482, y: 115 } }, seq: seqOf(['A', 'B'], 4) },
+  shank: { kind: 'button', name: '기둥 단추 달기', icon: '🟡', color: '#2b2b3a', desc: '단추 고리를 3~4번 통과', wrap: false, targets: { A: { x: 430, y: 132 }, B: { x: 470, y: 132 } }, seq: seqOf(['A', 'B'], 3) }
+};
+const ORDER_IDS = ['running', 'back', 'basting', 'two', 'shank'];
 const TIPS = {
   running: '겉과 안의 바늘땀 길이를 같게, 한 방향으로 한 땀씩 나아가요.',
   back: '한 땀 뒤로 갔다가 앞으로 두 땀! 겉의 바늘땀이 빈틈없이 이어져야 해요.',
-  basting: '겉은 길게, 안은 짧게! 바늘땀 길이를 3 : 1 정도로 해요.'
+  basting: '겉은 길게, 안은 짧게! 바늘땀 길이를 3 : 1 정도로 해요.',
+  two: '앞면에서 ②구멍으로 넣고, 뒷면에서 ①구멍으로 올려요. 4번 반복!',
+  shank: '앞면에서 단추 고리를 지나 넣고, 뒷면에서 다시 올려요. 3~4번 반복!'
 };
 const MIN_F = { running: 4, back: 4, basting: 3 };
-let fr = null;
-function newFr() { return { stitches: [], pos: { x: 450, y: 290 }, mode: 'under', first: true, drag: null, pull: null, flash: null, praiseUntil: 0 }; }
+const LEVELS = [[1, '쉬움', '안내 점에 자동으로 맞춰져요'], [2, '보통', '초크 선만 보여요'], [3, '어려움', '아무 표시도 없어요']];
+let S = null, penSeen = false, raf = 0, sewLevel = store.get('level', 1);
 
-function needleG(x, y, ang, faded) {
-  return `<g transform="translate(${x} ${y}) rotate(${ang})" opacity="${faded ? .6 : 1}" style="filter:drop-shadow(0 4px 3px #0003)">
-    <path d="M0 0 L-70 -4.5 L-98 -4.5 L-98 4.5 L-70 4.5Z" fill="#d5dde4" stroke="#7d8996" stroke-width="2" stroke-linejoin="round"/>
-    <ellipse cx="-88" cy="0" rx="6" ry="2" fill="#5f6b77"/><line x1="-66" y1="-2" x2="-6" y2="-0.6" stroke="#fff" stroke-width="1.5" stroke-opacity=".8"/></g>`;
+/* ----- 미션 목록 ----- */
+function sewList() {
+  S = null;
+  const st = store.get('stamps', {});
+  $('#p-sew').innerHTML = `<h2>바느질 연습</h2><p class="lead">펜으로 바늘을 잡고 천의 <b>앞면</b>과 <b>뒷면</b>을 오가며 바느질해요.<br>순서: <b>시작매듭 → 바느질 → 끝매듭 → 정리</b></p>
+   <div class="lvl"><b>난이도</b>${LEVELS.map(([n, t, d]) => `<button class="pill ${n === sewLevel ? 'on' : ''}" data-l="${n}" title="${d}">${t}</button>`).join('')}<span id="lvld">${LEVELS.find(x => x[0] === sewLevel)[2]}</span></div>
+   <div class="mgrid">${ORDER_IDS.map(id => { const m = MISSIONS[id]; return `<button class="mcard ${st[id] ? 'got' : ''}" data-id="${id}"><span class="mi">${m.icon}</span><b>${m.name}</b><span>${m.desc}</span><em>${st[id] ? '✅ 완료!' : '도전하기'}</em></button>`; }).join('')}</div>`;
+  $('#p-sew .lvl').onclick = e => { const b = e.target.closest('.pill'); if (!b) return; sewLevel = +b.dataset.l; store.set('level', sewLevel); sewList(); };
+  $('#p-sew .mgrid').onclick = e => { const b = e.target.closest('.mcard'); if (b) sewStart(b.dataset.id); };
 }
-function stRef() {
-  const s = STITCH[stType];
-  $('#stref').innerHTML = `<div style="width:240px;flex:none">${ART.stitch(stType, 360, 130)}</div>
-    <div style="font-size:19px;line-height:1.45"><b style="font-size:23px;color:var(--teal-d)">${s.name}</b> — ${s.use}<br><span style="color:#6b7b83">${TIPS[stType]}</span></div>`;
-}
-function renderStitchShell() {
-  fr = newFr();
-  $('#p-stitch').innerHTML = `<h2>바늘땀 연습</h2><p class="lead">펜(손가락도 돼요)으로 <b>바늘을 잡고 마음대로</b> 움직여 보세요. 천 위에서 펜을 떼면 그곳으로 바늘이 들어가고(올라오고) 실이 팽팽해져요.</p>
-   <div class="pills">${Object.keys(STITCH).map(k => `<button class="pill ${k === stType ? 'on' : ''}" data-k="${k}">${STITCH[k].name}</button>`).join('')}</div>
-   <div id="stref" style="display:flex;gap:14px;align-items:center;background:#fff;border:3px solid var(--teal-l);border-radius:20px;padding:8px 14px;margin-bottom:12px"></div>
-   <div class="say" id="say"></div><div class="board"><svg id="stsvg" viewBox="0 0 ${SW} ${SH}" style="touch-action:none"></svg></div><div class="msg" id="stmsg"></div>
-   <div class="actions"><button class="btn ghost" id="streset">처음부터</button><button class="btn ghost" id="frundo">↩ 되돌리기</button><button class="btn ghost" id="frguide">📏 초크 선</button><button class="btn coral" id="frscore">채점하기</button></div>`;
-  $('#p-stitch .pills').onclick = e => { const b = e.target.closest('.pill'); if (!b) return; stType = b.dataset.k; document.querySelectorAll('#p-stitch .pill').forEach(x => x.classList.toggle('on', x === b)); freeReset(); };
-  $('#streset').onclick = freeReset; $('#frundo').onclick = freeUndo; $('#frscore').onclick = () => freeCheck(true);
-  $('#frguide').onclick = () => { guideOn = !guideOn; renderFree(); };
-  const svg = $('#stsvg');
+
+/* ----- 미션 화면 ----- */
+function newS(id) { return { id, M: MISSIONS[id], phase: 'knot1', stitches: [], pos: null, startPt: null, k: 0, drag: null, pull: null, flash: null, knot1: false, knot2: false, wrapped: false, gest: null, praiseUntil: 0, praised: false, tidyDrag: null }; }
+function sewStart(id) {
+  S = newS(id);
+  $('#p-sew').innerHTML = `<div class="sbar"><button class="btn ghost small" id="sback">← 미션 목록</button><b class="jua" id="stitle">${S.M.icon} ${S.M.name}</b><button class="btn ghost small" id="srefb">💡 예시</button></div>
+   <div class="stepper" id="sstep"></div><div id="sref" class="refbox" hidden></div>
+   <div class="say" id="say"></div><div class="board"><svg id="ssvg" viewBox="0 0 ${VW} ${VH}" style="touch-action:none"></svg></div>
+   <div class="msg" id="smsg"></div><div class="actions" id="sact"></div><div id="sres"></div>`;
+  $('#sback').onclick = sewList;
+  $('#srefb').onclick = () => { const r = $('#sref'); r.hidden = !r.hidden; if (!r.hidden) refFill(); };
+  const svg = $('#ssvg');
   const pt = e => { const m = svg.getScreenCTM().inverse(), q = svg.createSVGPoint(); q.x = e.clientX; q.y = e.clientY; const r = q.matrixTransform(m); return { x: r.x, y: r.y }; };
-  svg.onpointerdown = e => freeDown(e, pt);
-  svg.onpointermove = e => freeMove(pt(e), e);
-  svg.onpointerup = e => freeUp(pt(e), e);
-  svg.onpointercancel = () => { fr.drag = null; renderFree(); };
-  stRef(); renderFree(); setMsg(TIPS[stType] ? '💡 ' + TIPS[stType] : '');
+  svg.onpointerdown = e => sewDown(e, pt(e));
+  svg.onpointermove = e => sewMove(e, pt(e));
+  svg.onpointerup = e => sewUp(e, pt(e));
+  svg.onpointercancel = () => { if (S) { S.drag = null; S.tidyDrag = null; render(); } };
+  toPhase('knot1');
 }
-function setMsg(t, color) { const m = $('#stmsg'); m.style.color = color || ''; m.textContent = t; }
-function freeReset() { fr = newFr(); stRef(); renderFree(); setMsg('💡 ' + TIPS[stType]); }
-function freeUndo() {
-  const s = fr.stitches.pop(); if (!s) return;
-  fr.pos = s.prevPos; fr.mode = s.prevMode; fr.first = s.skip; fr.drag = null; fr.pull = null; fr.praiseUntil = 0; renderFree(); setMsg('');
+function refFill() {
+  const M = S.M, r = $('#sref');
+  r.innerHTML = M.kind === 'stitch'
+    ? `<div style="width:260px;flex:none">${ART.stitch(S.id, 360, 130)}</div><div>${STITCH[S.id].use}<br><b>${STITCH[S.id].size}</b><br><span style="color:#6b7b83">${TIPS[S.id]}</span></div>`
+    : `<div style="width:110px;flex:none">${S.id === 'two' ? ART.button2 : ART.buttonShank}</div><div>${S.id === 'two' ? '① 시작매듭 → ② 구멍을 오가며 4~5번 → ③ 실을 2~3번 감아 실기둥 → ④ 끝매듭' : '① 시작매듭 → ② 고리를 통과하며 3~4번 → ③ 끝매듭'}<br><span style="color:#6b7b83">${TIPS[S.id]}</span></div>`;
 }
-function freeDown(e, pt) {
+function setMsg(t, color) { const m = $('#smsg'); if (!m) return; m.style.color = color || ''; m.textContent = t; }
+
+/* ----- 단계 ----- */
+function steps() { return [['knot1', '시작매듭'], ['sew', '바느질'], ...(S.M.wrap ? [['wrap', '실기둥']] : []), ['knot2', '끝매듭'], ['tidy', '정리']]; }
+function toPhase(p) {
+  S.phase = p; S.drag = null;
+  S.gest = ['knot1', 'wrap', 'knot2'].includes(p) ? { pts: [], total: 0, lastAng: null, last: null, need: p === 'knot2' ? 3.6 * Math.PI : 3.4 * Math.PI, ok: false, down: false } : null;
+  if (p === 'sew') setMsg('💡 ' + TIPS[S.id]); else if (p === 'done') setMsg(''); else setMsg('');
+  ui(); render();
+}
+function ui() {
+  const ph = S.phase, order = steps().map(x => x[0]), cur = order.indexOf(ph === 'done' ? 'tidy' : ph);
+  $('#sstep').innerHTML = steps().map(([k, t], i) => `<span class="stp ${ph === 'done' || i < cur ? 'ok' : i === cur ? 'now' : ''}"><i>${ph === 'done' || i < cur ? '✓' : i + 1}</i>${t}</span>`).join('<span class="arr">›</span>');
+  const F = S.stitches.filter(s => s.side === 'front').length, canEnd = S.M.kind === 'stitch' && S.phase === 'sew' && S.pos && S.pos.side === 'back' && F >= MIN_F[S.id];
+  let a = '';
+  if (['knot1', 'wrap', 'knot2'].includes(ph)) a = `<button class="btn ghost" id="askip">건너뛰기</button>`;
+  if (ph === 'sew') a = `<button class="btn ghost" id="aundo">↩ 되돌리기</button><button class="btn ghost" id="areset">처음부터</button>` + (S.M.kind === 'stitch' ? `<button class="btn ${canEnd ? 'coral' : 'ghost'}" id="aend" ${canEnd ? '' : 'data-off="1"'}>끝매듭 짓기 ▶</button>` : '');
+  $('#sact').innerHTML = a;
+  const q = id => document.getElementById(id);
+  if (q('askip')) q('askip').onclick = () => { if (ph === 'knot1') { S.knot1 = false; toPhase('sew'); } else if (ph === 'wrap') { toPhase('knot2'); } else { S.knot2 = false; toPhase('tidy'); } };
+  if (q('aundo')) q('aundo').onclick = sewUndo;
+  if (q('areset')) q('areset').onclick = () => sewStart(S.id);
+  if (q('aend')) q('aend').onclick = () => {
+    if (S.pos && S.pos.side === 'front') { setMsg('끝매듭은 뒷면에서 지어요! 바늘을 한 번 뒷면으로 넣어 주세요.', '#c24a3a'); return; }
+    if (!canEnd) { const need = MIN_F[S.id] - F; setMsg(need > 0 ? `겉에 보이는 바늘땀을 ${need}개 더 만들어 보세요!` : '뒷면에서 바늘을 잡고 있어야 해요.', '#c24a3a'); return; }
+    toPhase('knot2');
+  };
+}
+function sewUndo() {
+  if (S.phase !== 'sew') return;
+  const s = S.stitches.pop();
+  if (s) { S.pos = { x: s.a.x, y: s.a.y, side: s.side }; if (S.M.kind === 'button') S.k--; }
+  else if (S.pos) { S.pos = null; S.startPt = null; S.k = 0; }
+  S.drag = null; S.pull = null; S.praiseUntil = 0; setMsg(''); ui(); render();
+}
+
+/* ----- 입력 ----- */
+const strip = side => side === 'front' ? [FY0 + 8, FY1 - 8] : [BY0 + 8, BY1 - 8];
+function snapPt(x, y) {
+  const M = S.M;
+  if (M.kind === 'stitch' && sewLevel === 1) { let best = null, bd = 30; M.dots.forEach(dx => { const dd = Math.hypot(dx - x, LINEY - y); if (dd < bd) { bd = dd; best = { x: dx, y: LINEY }; } }); if (best) return best; }
+  return { x, y };
+}
+function expected() { const M = S.M; if (M.kind !== 'button' || S.k >= M.seq.length) return null; return M.targets[M.seq[S.k]]; }
+function sewDown(e, q) {
+  if (!S) return;
   if (e.pointerType === 'pen') penSeen = true;
   if (penSeen && e.pointerType === 'touch') return; // 손바닥 무시
-  fr.pull = null;
-  const q = pt(e), P = fr.pos;
-  if (Math.hypot(q.x - P.x, q.y - P.y) > 90) { setMsg('바늘을 꾹 잡고 마음대로 움직여 보세요!'); return; }
-  try { $('#stsvg').setPointerCapture(e.pointerId); } catch (err) {}
-  fr.drag = { id: e.pointerId, pts: [{ x: P.x, y: P.y }], x: P.x, y: P.y, ang: fr.first ? -90 : 0, pressure: e.pressure || .5 };
-  setMsg(''); freeMove(q, e);
+  const ph = S.phase;
+  try { $('#ssvg').setPointerCapture(e.pointerId); } catch (err) {}
+  if (ph === 'knot1' || ph === 'wrap' || ph === 'knot2') return gestDown(e, q);
+  if (ph === 'tidy') { const P = S.pos; if (P && Math.hypot(q.x - P.x, q.y - (P.y + OFF)) < 90) { S.tidyDrag = { id: e.pointerId, x: q.x, y: q.y, ang: -40 }; render(); } else setMsg('바늘을 잡고 바늘꽂이로 끌어 주세요!'); return; }
+  if (ph !== 'sew') return;
+  S.pull = null; S.flash = null;
+  if (!S.pos) { /* 뒷면에서 첫 바늘을 올리는 곳 누르기 */
+    if (q.y < BY0 || q.y > BY1 || q.x < 20 || q.x > 880) { setMsg('뒷면 천에서 바늘이 올라올 곳을 눌러 주세요!', '#c24a3a'); return; }
+    let P = snapPt(q.x, Math.max(BY0 + 8, Math.min(BY1 - 8, q.y)) - OFF);
+    if (S.M.kind === 'button') { const T = expected(); if (Math.hypot(P.x - T.x, P.y - T.y) > 40) { setMsg('반짝이는 곳(① 구멍 아래)을 눌러요!', '#c24a3a'); return; } P = { x: T.x, y: T.y }; }
+    S.pos = { x: P.x, y: P.y, side: 'front' }; S.startPt = { x: P.x, y: P.y }; if (S.M.kind === 'button') S.k++;
+    S.flash = { x: P.x, y: P.y, side: 'front' }; setMsg(''); ui(); render(); return;
+  }
+  const off = S.pos.side === 'back' ? OFF : 0;
+  if (Math.hypot(q.x - S.pos.x, q.y - (S.pos.y + off)) > 90) { setMsg('바늘을 꾹 잡고 실을 끌어 보세요!'); return; }
+  S.drag = { id: e.pointerId, pts: [{ x: S.pos.x, y: S.pos.y }], x: S.pos.x, y: S.pos.y, ang: S.pos.side === 'front' ? 10 : 10, pressure: e.pressure || .5 };
+  setMsg(''); sewMove(e, q);
 }
-function freeMove(q, e) {
-  const d = fr.drag; if (!d || e.pointerId !== d.id) return;
-  const x = Math.max(20, Math.min(880, q.x)), y = Math.max(FR_MIN_Y, Math.min(fr.first ? 296 : FR_MAX_Y, q.y));
+function sewMove(e, q) {
+  if (!S) return;
+  if (S.phase === 'tidy' && S.tidyDrag && e.pointerId === S.tidyDrag.id) { S.tidyDrag.x = q.x; S.tidyDrag.y = q.y; cancelAnimationFrame(raf); raf = requestAnimationFrame(render); return; }
+  if (S.gest && S.gest.down) return gestMove(q);
+  const d = S.drag; if (!d || e.pointerId !== d.id) return;
+  const side = S.pos.side, off = side === 'back' ? OFF : 0, [y0, y1] = strip(side);
+  const x = Math.max(30, Math.min(870, q.x)), y = Math.max(y0, Math.min(y1, q.y)) - off;
   const dx = x - d.x, dy = y - d.y;
   if (Math.hypot(dx, dy) > 3) {
     let a = Math.atan2(dy, dx) * 180 / Math.PI;
-    if (!fr.first) { const b = a > 90 ? a - 180 : a < -90 ? a + 180 : a, c = Math.max(-50, Math.min(50, b)); a = (Math.abs(a) > 90 ? 180 : 0) + c; }
+    const b = a > 90 ? a - 180 : a < -90 ? a + 180 : a, c = Math.max(-50, Math.min(50, b)); a = (Math.abs(a) > 90 ? 180 : 0) + c;
     d.ang = Math.abs(a - d.ang) < 100 ? d.ang + (a - d.ang) * .35 : a;
   }
   d.x = x; d.y = y; d.pressure = e.pressure || d.pressure;
   const last = d.pts[d.pts.length - 1];
   if (Math.hypot(x - last.x, y - last.y) > 4) d.pts.push({ x, y });
-  cancelAnimationFrame(raf); raf = requestAnimationFrame(renderFree);
+  cancelAnimationFrame(raf); raf = requestAnimationFrame(render);
 }
-function freeUp(q, e) {
-  const d = fr.drag; if (!d || e.pointerId !== d.id) return;
-  fr.drag = null;
-  const A = fr.pos, P = { x: d.x, y: d.y };
-  if (fr.first && P.y > FR_MAX_Y) { setMsg('천 위쪽까지 바늘을 끌어올려 보세요!', '#c24a3a'); return renderFree(); }
-  if (Math.hypot(P.x - A.x, P.y - A.y) < 14) return renderFree();
-  const wasFront = fr.mode === 'front';
-  const s = { a: { x: A.x, y: A.y }, b: P, front: wasFront, skip: fr.first, prevPos: A, prevMode: fr.mode };
-  fr.stitches.push(s);
-  /* 실을 당겨 팽팽하게: 구불구불한 선이 곧게 펴지는 모양 */
+function sewUp(e, q) {
+  if (!S) return;
+  if (S.phase === 'tidy' && S.tidyDrag && e.pointerId === S.tidyDrag.id) {
+    const t = S.tidyDrag; S.tidyDrag = null;
+    if (Math.hypot(t.x - 810, t.y - 236) < 70) { S.pos = { x: 810, y: 236 - OFF, side: 'back' }; S.cushion = true; finish(); } else { setMsg('바늘꽂이(오른쪽 빨간 쿠션)에 꽂아 주세요!', '#c24a3a'); render(); }
+    return;
+  }
+  if (S.gest && S.gest.down) return gestUp();
+  const d = S.drag; if (!d || e.pointerId !== d.id) return;
+  S.drag = null;
+  const A = S.pos, side = A.side;
+  let P = { x: d.x, y: d.y };
+  if (Math.hypot(P.x - A.x, P.y - A.y) < 14) return render();
+  if (S.M.kind === 'button') {
+    const T = expected();
+    if (Math.hypot(P.x - T.x, P.y - T.y) > 38) { setMsg(`반짝이는 구멍에 바늘을 ${side === 'front' ? '넣어' : '올려'} 주세요!`, '#c24a3a'); return render(); }
+    P = { x: T.x, y: T.y };
+  } else P = snapPt(P.x, P.y);
+  const s = { a: { x: A.x, y: A.y }, b: P, side };
+  S.stitches.push(s);
   const N = 24, src = d.pts.length > 1 ? d.pts : [A, P];
   const res = Array.from({ length: N }, (_, j) => { const f = j / (N - 1) * (src.length - 1), i = Math.floor(f), t = f - i, p0 = src[i], p1 = src[Math.min(i + 1, src.length - 1)]; return { x: p0.x + (p1.x - p0.x) * t, y: p0.y + (p1.y - p0.y) * t }; });
-  fr.pull = { s, res, t: 0 };
-  fr.pos = P; fr.mode = wasFront ? 'under' : 'front'; fr.first = false; fr.flash = { x: P.x, y: P.y };
+  S.pull = { s, res, t: 0 };
+  S.pos = { x: P.x, y: P.y, side: side === 'front' ? 'back' : 'front' };
+  S.flash = { x: P.x, y: P.y, side: S.pos.side };
   try { navigator.vibrate && navigator.vibrate(18); } catch (err) {}
-  (function tick() { if (!fr.pull) return; fr.pull.t += .1; if (fr.pull.t >= 1) fr.pull = null; renderFree(); if (fr.pull) requestAnimationFrame(tick); })();
-  if (!s.skip) freeCheck(false, wasFront); // 바늘땀을 하나 만들 때마다 확인 (겉 땀 직후에는 잘했을 때만 알려 줘요)
+  (function tick() { if (!S || !S.pull) return; S.pull.t += .1; if (S.pull.t >= 1) S.pull = null; render(); if (S && S.pull) requestAnimationFrame(tick); })();
+  if (S.M.kind === 'button') { S.k++; if (S.k >= S.M.seq.length) { S.praiseUntil = Date.now() + 2400; setTimeout(() => S && render(), 2500); setMsg(`${S.M.name} 바느질 완료! ${S.M.wrap ? '이제 실을 감아 실기둥을 만들어요.' : '이제 끝매듭!'}`, '#1fae6b'); toPhase(S.M.wrap ? 'wrap' : 'knot2'); return; } }
+  else sewCheck(side === 'front');
+  ui();
 }
 
-/* 바늘땀 평가: 종류별 규칙을 지켰는지 */
+/* ----- 매듭·감기 동작(펜으로 동그라미 그리기) ----- */
+const CARD = { x: 150, y: 110, w: 600, h: 250 };
+function gestDown(e, q) {
+  const g = S.gest; if (!g || g.ok) return;
+  if (q.x < CARD.x || q.x > CARD.x + CARD.w || q.y < CARD.y + 50 || q.y > CARD.y + CARD.h) { setMsg('흰 칸 안에서 펜으로 동그라미를 그려요!'); return; }
+  g.down = true; g.id = e.pointerId; g.pts = [q]; g.last = q; g.lastAng = null; setMsg('');
+}
+function gestMove(q) {
+  const g = S.gest; if (!g || !g.down) return;
+  const x = Math.max(CARD.x + 6, Math.min(CARD.x + CARD.w - 6, q.x)), y = Math.max(CARD.y + 50, Math.min(CARD.y + CARD.h - 6, q.y));
+  const dx = x - g.last.x, dy = y - g.last.y;
+  if (Math.hypot(dx, dy) < 5) return;
+  const a = Math.atan2(dy, dx);
+  if (g.lastAng != null) { let da = a - g.lastAng; while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI; g.total += da; }
+  g.lastAng = a; g.last = { x, y }; g.pts.push({ x, y });
+  if (Math.abs(g.total) >= g.need && !g.ok) {
+    g.ok = true; g.down = false; const ph = S.phase;
+    try { navigator.vibrate && navigator.vibrate([20, 40, 20]); } catch (err) {}
+    setTimeout(() => {
+      if (!S || S.phase !== ph) return;
+      if (ph === 'knot1') { S.knot1 = true; toPhase('sew'); } else if (ph === 'wrap') { S.wrapped = true; toPhase('knot2'); } else { S.knot2 = true; toPhase('tidy'); }
+    }, 900);
+  }
+  cancelAnimationFrame(raf); raf = requestAnimationFrame(render);
+}
+function gestUp() { const g = S.gest; if (g) { g.down = false; g.pts = g.ok ? g.pts : []; } render(); }
+
+/* ----- 바늘땀 평가 ----- */
 function freeEval() {
-  const t = stType, F = fr.stitches.filter(s => s.front && !s.skip), H = fr.stitches.filter(s => !s.front && !s.skip);
+  const t = S.id, F = S.stitches.filter(s => s.side === 'front'), H = S.stitches.filter(s => s.side === 'back');
   if (F.length < MIN_F[t]) return { need: MIN_F[t] - F.length };
   const len = s => Math.hypot(s.b.x - s.a.x, s.b.y - s.a.y), avg = a => a.reduce((x, y) => x + y, 0) / a.length;
   const L = F.map(len), mean = avg(L), sd = Math.sqrt(avg(L.map(v => (v - mean) ** 2))), even = Math.max(0, 1 - sd / mean);
@@ -301,134 +429,127 @@ function freeEval() {
     else {
       let gaps = 0; for (let i = 0; i + 1 < F.length; i++) if (Math.hypot(F[i + 1].b.x - F[i].a.x, F[i + 1].b.y - F[i].a.y) > 16) gaps++;
       if (gaps) issues.push('바늘땀이 이어지지 않고 빈틈이 있어요. 앞 땀의 끝에서 이어서!');
-      else if (H.length && (hm / mean < 1.5 || hm / mean > 2.7)) issues.push('안쪽(뒷면)은 겉 바늘땀의 두 배 길이로 떠요');
+      else if (H.length && (hm / mean < 1.5 || hm / mean > 2.7)) issues.push('뒷면 바늘땀은 겉 바늘땀의 두 배 길이로 떠요');
     }
     if (mean < 20) issues.push('바늘땀을 조금만 더 길게 떠 보세요');
   } else {
     const dir = Math.sign(F.reduce((a, s) => a + s.b.x - s.a.x, 0)) || 1;
     if (F.some(s => (s.b.x - s.a.x) * dir <= 0)) issues.push('한 방향으로만 나아가요');
     if (mean < 70) issues.push('겉 바늘땀을 더 길게 떠요 (시침질은 듬성듬성!)');
-    else if (H.length && mean / hm < 2) issues.push('겉은 길게, 안은 짧게! 안쪽 바늘땀을 더 짧게 해요');
+    else if (H.length && mean / hm < 2) issues.push('겉은 길게, 뒷면은 짧게! 뒷면 바늘땀을 더 짧게 해요');
   }
   if (even < .65) issues.push('바늘땀 길이를 비슷하게 맞춰 보세요');
   if (rms > 14) issues.push('줄을 곧게! 한 줄로 나란히 떠 보세요');
-  return { pass: !issues.length, issues, stars: even > .85 && rms < 8 ? 3 : 2, even, rms, F: F.length };
+  return { pass: !issues.length, issues, stars: even > .85 && rms < 8 ? 3 : 2 };
 }
-function freeCheck(verbose, quiet) {
-  const r = freeEval(), name = STITCH[stType].name;
-  if (r.need) { if (quiet) return; if (verbose) setMsg(`겉에 보이는 바늘땀을 ${r.need}개 더 만들어 보세요!`, '#c24a3a'); else setMsg(`${name} 잘 가고 있어요! 조금만 더 해 봐요. (${TIPS[stType]})`); return; }
+function sewCheck(quiet) {
+  const r = freeEval(), name = S.M.name;
+  if (r.need) { if (!quiet) setMsg(`${name} 잘 가고 있어요! 조금만 더 해 봐요.`); return; }
   if (r.pass) {
-    setMsg(`${'⭐'.repeat(r.stars)}${'☆'.repeat(3 - r.stars)} 잘했어요! 제대로 된 ${name}이에요!`, '#1fae6b');
-    fr.praiseUntil = Date.now() + 2600; setTimeout(renderFree, 2700); renderFree(); stamp(stType);
-  } else if (!quiet) setMsg('💡 ' + (verbose ? r.issues.slice(0, 2).join(' · ') : r.issues[0]), '#b8731a');
+    setMsg(`${'⭐'.repeat(r.stars)}${'☆'.repeat(3 - r.stars)} 잘했어요! 제대로 된 ${name}이에요! 뒷면으로 내려가 끝매듭을 지어요.`, '#1fae6b');
+    S.praiseUntil = Date.now() + 2600; setTimeout(() => S && render(), 2700);
+  } else if (!quiet) setMsg('💡 ' + r.issues[0], '#b8731a');
+}
+function finish() {
+  const M = S.M, knots = S.knot1 && S.knot2 && (!M.wrap || S.wrapped);
+  let pass = true, stars = 3, issues = [];
+  if (M.kind === 'stitch') { const r = freeEval(); pass = r.pass; issues = r.issues || []; stars = r.pass ? r.stars : 1; }
+  if (!knots) { stars = Math.min(stars, 2); issues = issues.concat(['시작·끝매듭과 실기둥을 모두 해야 실이 빠지지 않아요']); }
+  S.phase = 'done'; S.result = { pass, stars, issues, knots };
+  const ok = pass && knots; if (ok) stamp(S.id);
+  ui(); render(); setMsg('');
+  const next = ORDER_IDS[ORDER_IDS.indexOf(S.id) + 1];
+  $('#sres').innerHTML = `<div class="rcard ${ok ? 'good' : ''}"><div class="rst">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <h3 class="jua">${ok ? `👏 잘했어요! 제대로 된 ${M.name}이에요!` : '조금만 더 연습해 볼까요?'}</h3>
+    ${issues.length ? `<ul>${issues.slice(0, 3).map(t => `<li>${t}</li>`).join('')}</ul>` : '<p>바늘땀과 매듭, 정리까지 모두 훌륭해요.</p>'}
+    <div class="actions"><button class="btn coral" id="rag">다시 하기</button>${next ? `<button class="btn" id="rnx">다음: ${MISSIONS[next].name} ▶</button>` : ''}<button class="btn ghost" id="rls">미션 목록</button></div></div>`;
+  $('#rag').onclick = () => sewStart(S.id); $('#rls').onclick = sewList; if (next) $('#rnx').onclick = () => sewStart(next);
+  $('#sres').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function renderFree() {
-  const svg = $('#stsvg'), d = fr.drag, under = fr.mode === 'under', hidden = under && !fr.first;
-  let g = `<rect x="14" y="60" width="${SW - 28}" height="190" rx="22" fill="#fbe9bd" stroke="#e0c47a" stroke-width="4"/>
-    <text x="34" y="${hidden ? 240 : 86}" font-size="20" fill="#8a7338" font-family="Gowun Dodum">겉(앞면)</text>`;
-  if (guideOn) g += `<line x1="50" y1="155" x2="${SW - 50}" y2="155" stroke="#7fcfe0" stroke-width="5" stroke-linecap="round" stroke-dasharray="14 10"/><text x="${SW - 56}" y="146" font-size="18" text-anchor="end" fill="#3a95ab" font-family="Gowun Dodum">초크 선</text>`;
-  if (hidden) g += `<rect x="14" y="60" width="${SW - 28}" height="190" rx="22" fill="#6b5420" opacity=".2"/><text x="${SW / 2}" y="86" font-size="22" text-anchor="middle" fill="#fff" font-family="Jua">🔄 바늘이 천 속(뒷면)에 있어요 — 끌어서 올라올 곳을 정해요</text>`;
-  const path = pts => 'M' + pts.map(p => p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' L');
-  const holes = [];
-  fr.stitches.forEach(s => {
-    if (s.skip) return;
-    holes.push(s.a, s.b);
-    let pts = [s.a, s.b];
-    if (fr.pull && fr.pull.s === s) { const t = Math.min(1, fr.pull.t), e = 1 - (1 - t) * (1 - t), N = fr.pull.res.length; pts = fr.pull.res.map((p, j) => ({ x: p.x + (s.a.x + (s.b.x - s.a.x) * j / (N - 1) - p.x) * e, y: p.y + (s.a.y + (s.b.y - s.a.y) * j / (N - 1) - p.y) * e })); }
-    g += s.front ? `<path d="${path(pts)}" fill="none" stroke="#1fae6b" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`
-      : `<path d="${path(pts)}" fill="none" stroke="#8fd3b0" stroke-width="5" stroke-dasharray="10 8" stroke-linecap="round" stroke-linejoin="round"/>`;
+/* ----- 그리기 ----- */
+function needleG(x, y, ang, faded) {
+  return `<g transform="translate(${x} ${y}) rotate(${ang})" opacity="${faded ? .6 : 1}" style="filter:drop-shadow(0 4px 3px #0003)">
+    <path d="M0 0 L-70 -4.5 L-98 -4.5 L-98 4.5 L-70 4.5Z" fill="#d5dde4" stroke="#7d8996" stroke-width="2" stroke-linejoin="round"/>
+    <ellipse cx="-88" cy="0" rx="6" ry="2" fill="#5f6b77"/><line x1="-66" y1="-2" x2="-6" y2="-0.6" stroke="#fff" stroke-width="1.5" stroke-opacity=".8"/></g>`;
+}
+function say() {
+  const ph = S.phase, M = S.M, F = S.stitches.filter(s => s.side === 'front').length;
+  const t = { knot1: '🧶 <b>시작매듭</b>: 펜으로 흰 칸에 동그라미를 2번 그려 실을 손가락에 감아요',
+    sew: !S.pos ? '🪡 천의 <b>뒷면(아래 천)</b>에서 바늘이 올라올 곳을 눌러요' : S.pos.side === 'front' ? '✍ <b>앞면</b>: 바늘을 잡고 실을 끌다가 <b>들어갈 곳</b>에서 펜을 떼요' : '🔄 <b>뒷면</b>: 바늘을 잡고 실을 끌다가 <b>올라올 곳</b>에서 펜을 떼요',
+    wrap: '🧵 <b>실기둥</b>: 단추와 옷 사이에서 실을 감아요 — 동그라미를 2번 그려요',
+    knot2: '🪢 <b>끝매듭</b>: 바늘 끝에 실을 두세 번 감아요 — 동그라미를 2번 그려요',
+    tidy: '🧷 <b>정리</b>: 바늘을 잡고 오른쪽 <b>바늘꽂이</b>에 꽂아요', done: '🎉 모두 끝났어요!' }[ph];
+  $('#say').innerHTML = `<div>${t}</div><span style="color:#7a8a92;font-size:19px;margin-left:auto">${M.kind === 'stitch' ? `겉 바늘땀 ${F}개` : `${Math.min(S.k, M.seq.length)}/${M.seq.length}`}</span>`;
+}
+function render() {
+  if (!S) return;
+  const M = S.M, col = M.color, ph = S.phase, d = S.drag;
+  const actSide = ph === 'sew' ? (S.pos ? S.pos.side : 'back') : null;
+  let g = `<defs><pattern id="weave" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 7H14M7 0V14" stroke="#c9ab63" stroke-width=".9" opacity=".45"/></pattern></defs>`;
+  [['front', FY0, '앞면(겉)'], ['back', BY0, '뒷면(안) — 천을 뒤집어서 본 모습']].forEach(([sd, y0, lb]) => {
+    g += `<rect x="20" y="${y0}" width="860" height="150" rx="18" fill="${sd === 'back' ? '#ecd9aa' : '#fbe9bd'}"/><rect x="20" y="${y0}" width="860" height="150" rx="18" fill="url(#weave)"/>
+     <rect x="20" y="${y0}" width="860" height="150" rx="18" fill="none" stroke="${actSide === sd ? '#ffb300' : '#d9bd78'}" stroke-width="${actSide === sd ? 7 : 4}"/>
+     <text x="30" y="${y0 - 10}" font-size="21" font-family="Jua" fill="${actSide === sd ? '#b87500' : '#8a7338'}">${lb}${actSide === sd ? ' ◀ 지금 여기' : ''}</text>`;
   });
-  holes.forEach(p => { g += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#6b4a0f"/>`; });
-  if (fr.flash) g += `<circle class="flash" cx="${fr.flash.x}" cy="${fr.flash.y}" r="28" fill="none" stroke="#ffd34d" stroke-width="6"/>`;
-  if (d) {
-    const full = path(d.pts.concat([{ x: d.x, y: d.y }]));
-    g += !under ? `<path d="${full}" fill="none" stroke="#1fae6b" stroke-width="${5 + (d.pressure || .5) * 5}" stroke-linecap="round" stroke-linejoin="round"/>`
-      : (fr.first ? '' : `<path d="${full}" fill="none" stroke="#8fd3b0" stroke-width="5" stroke-dasharray="10 8" stroke-linecap="round" stroke-linejoin="round"/>`);
-  }
-  const last = fr.stitches[fr.stitches.length - 1];
-  const P = d ? { x: d.x, y: d.y, ang: d.ang } : { x: fr.pos.x, y: fr.pos.y, ang: fr.first ? -90 : (last && last.b.x < last.a.x ? 168 : 12) };
-  g += needleG(P.x, P.y, P.ang, under);
-  if (!d && fr.first) g += `<text x="${P.x + 24}" y="${P.y + 6}" font-size="20" fill="#7a6a4a" font-family="Gowun Dodum">바늘을 잡아 천 위로 올려요 ↑</text>`;
-  if (Date.now() < fr.praiseUntil) g += `<g><rect x="290" y="4" width="320" height="54" rx="27" fill="#fff" stroke="#1fae6b" stroke-width="5"/><text x="450" y="43" font-size="34" text-anchor="middle" font-family="Jua" fill="#1fae6b">👏 잘했어요!</text></g>`;
-  svg.innerHTML = g;
-  const nF = fr.stitches.filter(s => s.front && !s.skip).length;
-  $('#say').innerHTML = `<div>${fr.first ? '🪡 바늘을 잡고 천 <b>아무 곳</b>이나 끌어 올려요' : under ? '🔄 바늘이 천 속에 있어요. 잡고 끌어서 <b>올라올 곳</b>에 놓아요' : '✍ 바늘을 잡고 마음대로 움직이다가 <b>들어갈 곳</b>에 펜을 떼요'}</div><span style="color:#7a8a92;font-size:19px;margin-left:auto">${STITCH[stType].name} · 바늘땀 ${nF}개</span>`;
-}
-
-/* ---------- 4. 단추 달기 ---------- */
-let btMode = 'two', bt = null;
-function btPlan(mode) {
-  if (mode === 'two') {
-    const s = [];
-    for (let k = 0; k < 4; k++) { s.push({ t: '옷 안쪽에서 <b>① 구멍</b>으로 바늘을 올려요', tap: 'A' }); s.push({ t: '<b>② 구멍</b>으로 바늘을 넣어요 (4~5번 반복!)', tap: 'B' }); }
-    s.push({ t: '단추와 옷 사이로 바늘을 빼요', btn: '바늘 빼기' });
-    for (let k = 0; k < 3; k++) s.push({ t: `실을 단추 아래 <b>감아요</b> (${k + 1}/3) → 실기둥 만들기`, btn: '실 감기', wrap: 1 });
-    s.push({ t: '바늘을 옷 <b>안쪽</b>으로 빼내요', btn: '안쪽으로 빼기' });
-    s.push({ t: '끝매듭을 짓고 마무리해요', btn: '끝매듭 짓기', end: 1 });
-    return s;
-  }
-  const s = [];
-  for (let k = 0; k < 3; k++) { s.push({ t: '옷 안쪽에서 바늘을 올려 <b>단추 고리</b>를 통과시켜요', tap: 'L' }); s.push({ t: '다시 옷 <b>안쪽</b>으로 바늘을 빼내요 (3~4회 반복!)', tap: 'C' }); }
-  s.push({ t: '끝매듭을 짓고 마무리해요', btn: '끝매듭 짓기', end: 1 });
-  return s;
-}
-function renderButtonShell() {
-  $('#p-button').innerHTML = `<h2>단추 달기 연습</h2><p class="lead">안내에 따라 반짝이는 곳을 누르거나 버튼을 눌러요.</p>
-   <div class="pills"><button class="pill" data-m="two">두 구멍 단추</button><button class="pill" data-m="shank">기둥 단추</button></div>
-   <div class="say" id="bsay"></div><div class="board"><svg id="btsvg" viewBox="0 0 900 340"></svg></div><div class="msg" id="bmsg"></div>
-   <div class="actions" id="bact"></div>`;
-  $('#p-button .pills').onclick = e => { const b = e.target.closest('.pill'); if (b) { btMode = b.dataset.m; bt = null; renderButton(); } };
-  renderButton();
-}
-function renderButton() {
-  if (!bt || bt.mode !== btMode) bt = { mode: btMode, plan: btPlan(btMode), i: 0, wraps: 0, lines: 0 };
-  document.querySelectorAll('#p-button .pill').forEach(x => x.classList.toggle('on', x.dataset.m === btMode));
-  const cur = bt.plan[bt.i], done = bt.i >= bt.plan.length, two = btMode === 'two';
-  const A = { x: 255, y: 170 }, B = { x: 345, y: 170 }, L = { x: 300, y: 150 }, C = { x: 300, y: 285 };
-  let g = `<rect x="20" y="20" width="440" height="300" rx="26" fill="#a9d6ef" stroke="#6fb0d6" stroke-width="4"/><text x="40" y="52" font-size="20" fill="#2d6f94" font-family="Gowun Dodum">위에서 본 모습</text>`;
-  if (two) {
-    g += `<circle cx="300" cy="170" r="100" fill="#f4b942" stroke="#d98f1c" stroke-width="6"/><circle cx="300" cy="170" r="76" fill="none" stroke="#d98f1c" stroke-width="3"/>`;
-    for (let k = 0; k < bt.lines; k++) g += `<line x1="${A.x}" y1="${A.y - 5 + k * 3.3}" x2="${B.x}" y2="${B.y - 5 + k * 3.3}" stroke="#2b2b3a" stroke-width="3" stroke-linecap="round"/>`;
-    for (const [P, n] of [[A, '①'], [B, '②']]) {
-      const next = cur && cur.tap === (P === A ? 'A' : 'B');
-      g += `<g data-t="${P === A ? 'A' : 'B'}" style="cursor:pointer"><circle cx="${P.x}" cy="${P.y}" r="40" fill="transparent"/>${next ? `<circle class="pulse" cx="${P.x}" cy="${P.y}" r="19" fill="#fff" stroke="#ef6f5e" stroke-width="4"/>` : ''}<circle cx="${P.x}" cy="${P.y}" r="11" fill="#7a4c0a"/><text x="${P.x}" y="${P.y - 28}" font-size="24" text-anchor="middle" font-family="Jua" fill="#7a4c0a">${n}</text></g>`;
-    }
+  g += `<text x="${VW / 2}" y="246" font-size="20" text-anchor="middle" fill="#9a8a5a" font-family="Gowun Dodum">↕ 앞면과 뒷면은 같은 구멍으로 이어져 있어요</text>`;
+  /* 초크 / 단추 */
+  if (M.kind === 'stitch') {
+    if (sewLevel <= 2) g += `<line x1="50" y1="${LINEY}" x2="850" y2="${LINEY}" stroke="#7fcfe0" stroke-width="5" stroke-linecap="round" stroke-dasharray="14 10" opacity=".9"/>`;
+    if (sewLevel === 1) M.dots.forEach(x => { g += `<circle cx="${x}" cy="${LINEY}" r="7" fill="#fff" stroke="#3a95ab" stroke-width="2.5"/>`; });
   } else {
-    g += `<circle cx="300" cy="170" r="100" fill="#c8932f" stroke="#8b6218" stroke-width="6"/><circle cx="300" cy="170" r="70" fill="#e0b050" stroke="#8b6218" stroke-width="3"/><path d="M300 125 l45 45 l-45 45 l-45 -45z" fill="#8b6218"/>
-     <circle cx="300" cy="170" r="22" fill="#fff" stroke="#8b6218" stroke-width="3"/><text x="300" y="177" text-anchor="middle" font-size="18" font-family="Jua" fill="#8b6218">고리</text>`;
-    for (let k = 0; k < bt.lines; k++) g += `<path d="M300 170 Q${280 + k * 14} 230 300 285" stroke="#2b2b3a" stroke-width="3" fill="none"/>`;
-    const nl = cur && cur.tap === 'L', nc = cur && cur.tap === 'C';
-    g += `<g data-t="L" style="cursor:pointer"><circle cx="300" cy="170" r="48" fill="transparent"/>${nl ? '<circle class="pulse" cx="300" cy="170" r="24" fill="none" stroke="#ef6f5e" stroke-width="5"/>' : ''}</g>
-     <g data-t="C" style="cursor:pointer"><circle cx="${C.x}" cy="${C.y}" r="30" fill="transparent"/>${nc ? `<circle class="pulse" cx="${C.x}" cy="${C.y}" r="16" fill="#fff" stroke="#ef6f5e" stroke-width="4"/>` : ''}<circle cx="${C.x}" cy="${C.y}" r="8" fill="#2d6f94"/><text x="${C.x + 24}" y="${C.y + 8}" font-size="18" font-family="Gowun Dodum" fill="#1f5675">옷감 구멍</text></g>`;
+    const A = M.targets.A, B = M.targets.B;
+    if (S.id === 'two') g += `<circle cx="450" cy="115" r="62" fill="#f4b942" stroke="#d98f1c" stroke-width="5"/><circle cx="450" cy="115" r="46" fill="none" stroke="#d98f1c" stroke-width="2.5"/><circle cx="${A.x}" cy="${A.y}" r="9" fill="#7a4c0a"/><circle cx="${B.x}" cy="${B.y}" r="9" fill="#7a4c0a"/><text x="${A.x}" y="${A.y - 16}" text-anchor="middle" font-size="20" font-family="Jua" fill="#7a4c0a">①</text><text x="${B.x}" y="${B.y - 16}" text-anchor="middle" font-size="20" font-family="Jua" fill="#7a4c0a">②</text>`;
+    else g += `<circle cx="450" cy="105" r="62" fill="#c8932f" stroke="#8b6218" stroke-width="5"/><circle cx="450" cy="105" r="44" fill="#e0b050" stroke="#8b6218" stroke-width="2"/><path d="M450 78 l27 27 l-27 27 l-27 -27z" fill="#8b6218"/><path d="M425 140 Q450 95 475 140" fill="none" stroke="#6b4a12" stroke-width="8" stroke-linecap="round"/><text x="450" y="176" text-anchor="middle" font-size="18" font-family="Gowun Dodum" fill="#7a5a14">단추 고리</text>`;
   }
-  /* 옆에서 본 모습 */
-  const lift = two ? Math.min(bt.wraps, 3) * 12 : 0;
-  g += `<rect x="490" y="20" width="390" height="300" rx="26" fill="#fff" stroke="#e3ddd0" stroke-width="3"/><text x="510" y="52" font-size="20" fill="#7a6a4a" font-family="Gowun Dodum">옆에서 본 모습</text>
-   <rect x="510" y="236" width="350" height="34" rx="6" fill="#a9d6ef" stroke="#6fb0d6" stroke-width="3"/>`;
-  const by = 236 - 20 - lift;
-  if (two) {
-    for (let k = 0; k < Math.min(bt.wraps, 3); k++) g += `<ellipse cx="685" cy="${236 - 4 - k * 12 - 2}" rx="${10}" ry="5" fill="none" stroke="#2b2b3a" stroke-width="3"/>`;
-    g += `<rect x="620" y="${by}" width="130" height="20" rx="8" fill="#f4b942" stroke="#d98f1c" stroke-width="3"/>
-     ${bt.lines ? `<line x1="665" y1="${by + 10}" x2="665" y2="236" stroke="#2b2b3a" stroke-width="3" opacity=".7"/><line x1="705" y1="${by + 10}" x2="705" y2="236" stroke="#2b2b3a" stroke-width="3" opacity=".7"/>` : ''}`;
-  } else {
-    g += `<rect x="620" y="${by - 20}" width="130" height="22" rx="8" fill="#c8932f" stroke="#8b6218" stroke-width="3"/><rect x="677" y="${by}" width="16" height="18" fill="#c8932f" stroke="#8b6218" stroke-width="3"/>
-     ${bt.lines ? '<path d="M685 236 v-18" stroke="#2b2b3a" stroke-width="3"/>' : ''}`;
+  /* 실 */
+  const P = (p, off) => `${p.x.toFixed(1)} ${(p.y + off).toFixed(1)}`, path = (pts, off) => 'M' + pts.map(p => P(p, off)).join(' L');
+  const segs = S.stitches.map(s => {
+    let pts = [s.a, s.b];
+    if (S.pull && S.pull.s === s) { const t = Math.min(1, S.pull.t), e = 1 - (1 - t) * (1 - t), N = S.pull.res.length; pts = S.pull.res.map((p, j) => ({ x: p.x + (s.a.x + (s.b.x - s.a.x) * j / (N - 1) - p.x) * e, y: p.y + (s.a.y + (s.b.y - s.a.y) * j / (N - 1) - p.y) * e })); }
+    return { s, pts };
+  });
+  segs.forEach(({ s, pts }) => { g += `<path d="${path(pts, s.side === 'front' ? OFF : 0)}" fill="none" stroke="${col}" stroke-width="5" stroke-dasharray="8 9" stroke-linecap="round" opacity=".22"/>`; });
+  const holes = []; S.stitches.forEach(s => holes.push(s.a, s.b)); if (S.startPt) holes.push(S.startPt);
+  holes.forEach(p => { g += `<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#6b4a0f" opacity=".85"/><circle cx="${p.x}" cy="${p.y + OFF}" r="4.5" fill="#6b4a0f" opacity=".85"/>`; });
+  segs.forEach(({ s, pts }) => { g += `<path d="${path(pts, s.side === 'front' ? 0 : OFF)}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`; });
+  /* 매듭 */
+  const knot = (p, r) => `<circle cx="${p.x}" cy="${p.y + OFF}" r="${r}" fill="${col}" stroke="#fff" stroke-width="2.5"/><circle cx="${p.x - r / 3}" cy="${p.y + OFF - r / 3}" r="${r / 3}" fill="#fff" opacity=".45"/>`;
+  if (S.knot1 && S.startPt) g += knot(S.startPt, 11);
+  if (S.knot2 && S.pos) g += knot(S.pos, 15);
+  /* 안내 반짝이 */
+  if (ph === 'sew' && M.kind === 'button') {
+    const T = expected();
+    if (T) { const needSide = !S.pos ? 'back' : S.pos.side; g += `<circle class="pulse" cx="${T.x}" cy="${T.y + (needSide === 'back' ? OFF : 0)}" r="17" fill="#ffd34d" stroke="#e0a800" stroke-width="3"/>`; }
   }
-  if (done) g += `<text x="685" y="150" font-size="70" text-anchor="middle">🎉</text>`;
-  $('#btsvg').innerHTML = g;
-  $('#bsay').innerHTML = done ? `<div>🎉 <b>${two ? '두 구멍' : '기둥'} 단추</b>를 튼튼하게 달았어요!</div>` : `<div><b>${bt.i + 1}/${bt.plan.length}</b> ${cur.t}</div>`;
-  $('#bmsg').textContent = done ? '실을 감아 실기둥을 만들면 단추가 옷에서 살짝 떠서 단춧구멍에 잘 끼워져요.' : '';
-  $('#bmsg').style.fontSize = '20px';
-  $('#bact').innerHTML = done ? `<button class="btn" id="bagain">다시 달아 보기</button>`
-    : (cur.btn ? `<button class="btn coral" id="bdo">${cur.btn}</button>` : '');
-  if (done) { stamp(btMode); $('#bagain').onclick = () => { bt = null; renderButton(); }; }
-  else if (cur.btn) $('#bdo').onclick = () => { if (cur.wrap) bt.wraps++; bt.i++; renderButton(); };
-  $('#btsvg').onpointerdown = e => {
-    const el = e.target.closest('[data-t]'); if (!el || !cur || !cur.tap) return;
-    if (el.dataset.t === cur.tap) { if (two ? cur.tap === 'B' : cur.tap === 'C') bt.lines++; bt.i++; renderButton(); }
-    else { el.classList.remove('shake'); void el.getBoundingClientRect(); el.classList.add('shake'); }
-  };
+  if (S.flash) g += `<circle class="flash" cx="${S.flash.x}" cy="${S.flash.y + (S.flash.side === 'back' ? OFF : 0)}" r="28" fill="none" stroke="#ffd34d" stroke-width="6"/>`;
+  /* 끌고 있는 실 */
+  if (d) { const off = S.pos.side === 'back' ? OFF : 0; g += `<path d="${path(d.pts.concat([{ x: d.x, y: d.y }]), off)}" fill="none" stroke="${col}" stroke-width="${5 + (d.pressure || .5) * 5}" stroke-linecap="round" stroke-linejoin="round"/>`; }
+  /* 바늘꽂이 */
+  g += `<g transform="translate(765 190)" opacity="${ph === 'tidy' ? 1 : .55}">${ph === 'tidy' ? '<circle class="pulse" cx="45" cy="46" r="48" fill="#ffd34d" opacity=".5"/>' : ''}${ART.pincushion.replace('<svg ', '<svg width="90" height="90" ')}</g>`;
+  /* 바늘 */
+  if (ph === 'sew') {
+    if (S.pos) { const side = S.pos.side, off = side === 'back' ? OFF : 0, last = S.stitches[S.stitches.length - 1];
+      g += d ? needleG(d.x, d.y + off, d.ang, false) : needleG(S.pos.x, S.pos.y + off, last && last.b.x < last.a.x ? 168 : 12, false); }
+    else g += `<text x="${VW / 2}" y="${BY0 + 80}" font-size="26" text-anchor="middle" font-family="Jua" fill="#7a6a4a">👆 바늘이 올라올 곳을 눌러요</text>`;
+  } else if (ph === 'knot2' || ph === 'wrap') { /* 제자리 바늘 */ }
+  if (ph === 'tidy' && S.pos) { const t = S.tidyDrag; g += t ? needleG(t.x, t.y, t.ang, false) : needleG(S.pos.x, S.pos.y + OFF, 12, false); }
+  if (ph === 'done' && S.cushion) g += needleG(826, 224, -50, false);
+  /* 칭찬 */
+  if (Date.now() < S.praiseUntil) g += `<g><rect x="290" y="2" width="320" height="36" rx="18" fill="#fff" stroke="#1fae6b" stroke-width="4"/><text x="450" y="29" font-size="26" text-anchor="middle" font-family="Jua" fill="#1fae6b">👏 잘했어요!</text></g>`;
+  /* 매듭 동작 칸 */
+  if (S.gest) {
+    const gs = S.gest, title = { knot1: '시작매듭 짓기', wrap: '실기둥 만들기', knot2: '끝매듭 짓기' }[ph], prog = Math.min(1, Math.abs(gs.total) / gs.need);
+    g += `<rect x="0" y="0" width="${VW}" height="${VH}" fill="#26323a" opacity=".55"/>
+     <rect x="${CARD.x}" y="${CARD.y}" width="${CARD.w}" height="${CARD.h}" rx="26" fill="#fff" stroke="${col}" stroke-width="6"/>
+     <text x="${CARD.x + 24}" y="${CARD.y + 38}" font-size="28" font-family="Jua" fill="#0f7a80">🧶 ${title}</text>
+     <text x="${CARD.x + CARD.w - 24}" y="${CARD.y + 38}" font-size="19" text-anchor="end" font-family="Gowun Dodum" fill="#6b7b83">펜으로 동그라미를 2번 그려요</text>
+     <rect x="${CARD.x + 24}" y="${CARD.y + CARD.h - 22}" width="${CARD.w - 48}" height="10" rx="5" fill="#d9f3f4"/><rect x="${CARD.x + 24}" y="${CARD.y + CARD.h - 22}" width="${(CARD.w - 48) * prog}" height="10" rx="5" fill="${col}"/>`;
+    if (!gs.ok && !gs.pts.length) g += `<circle cx="${CARD.x + CARD.w / 2}" cy="${CARD.y + 135}" r="52" fill="none" stroke="#cfe7ea" stroke-width="5" stroke-dasharray="9 9"/><text x="${CARD.x + CARD.w / 2}" y="${CARD.y + 143}" font-size="34" text-anchor="middle">☝️</text>`;
+    if (gs.pts.length > 1) g += `<path d="${'M' + gs.pts.map(p => p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' L')}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (gs.ok) g += `<circle cx="${CARD.x + CARD.w / 2}" cy="${CARD.y + 140}" r="40" fill="${col}" stroke="#fff" stroke-width="5"/><circle cx="${CARD.x + CARD.w / 2 - 12}" cy="${CARD.y + 128}" r="12" fill="#fff" opacity=".45"/><text x="${CARD.x + CARD.w / 2}" y="${CARD.y + 215}" font-size="30" text-anchor="middle" font-family="Jua" fill="#1fae6b">매듭이 지어졌어요! ✨</text>`;
+  }
+  $('#ssvg').innerHTML = g; say();
 }
 
 /* ---------- 5. 평가 ---------- */
@@ -445,8 +566,8 @@ function renderEval() {
   $('#resetall').onclick = () => { if (confirm('도장과 평가 기록을 모두 지울까요?')) { store.set('stamps', {}); store.set('eval', {}); store.set('quizBest', null); renderEval(); } };
 }
 
-renderTools(); renderOrder(); renderStitchShell(); renderButtonShell(); renderEval();
-tab(store.get('tab', 'tools'));
+renderTools(); renderOrder(); sewList(); renderEval();
+{ const t0 = store.get('tab', 'sew'); tab(TABS.some(x => x[0] === t0) ? t0 : 'sew'); }
 </script>
 </body>
 </html>
