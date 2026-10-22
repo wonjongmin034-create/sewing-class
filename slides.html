@@ -142,7 +142,7 @@ const slides = [
  <table class="cmp">
   ${[['running', '#1fae6b'], ['back', '#2f7fd0'], ['basting', '#e08a2d']].map(([k, c], i) => `<tr class="pop" style="--d:${i + 1}">
    <td style="background:${c}">${STITCH[k].name}</td><td>${STITCH[k].use}<br><b style="color:${c}">${STITCH[k].size}</b></td><td style="width:420px;padding:6px">${A.stitch(k, 400, 120)}</td></tr>`).join('')}
- </table><div class="pg">9</div></section>`,
+ </table><div class="pop" style="--d:5;display:flex;gap:14px;justify-content:center;align-items:center;margin-top:6px;font-size:24px">👀 움직이는 시범 보기 ▶ ${[['running','홈질'],['back','박음질'],['basting','시침질']].map(([k,n])=>`<a href="app.html#demo-${k}" target="_blank" style="background:var(--coral);color:#fff;border-radius:30px;padding:6px 22px;font-family:Jua;text-decoration:none;box-shadow:0 4px 0 #c24a3a">${n}</a>`).join('')}</div><div class="pg">9</div></section>`,
 /* 10 끝매듭 */
 `<section class="slide"><h2 class="pop">손바느질의 기초 ③ <span class="teal">끝매듭</span> 짓기</h2>
  <div class="steps" style="margin-top:44px">
